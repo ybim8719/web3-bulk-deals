@@ -3,17 +3,19 @@ pragma solidity ^0.8.19;
 import { TrusteeVoting } from './TrusteeVoting.sol';
 
 contract VotingFactory {
-    address s_owner;
+    address immutable i_owner;
     address[] private deployedContracts;
     mapping (address member => bool isRegistered) s_members;
     mapping (address proposer => VotingProposal projectContent) s_proposals;
+    
+    // should contain a 
     struct VotingProposal {
         string description;
         uint256 amountToSend; 
     }
 
     modifier onlyOwner {
-        require(msg.sender == s_owner);  
+        require(msg.sender == i_owner);  
     }
 
     modifier onlyMember {
@@ -31,7 +33,7 @@ contract VotingFactory {
 
   
 
-    // add members of the committee. 
+    // add members of the committee / only possible by 
 
     function addMember() {
 
