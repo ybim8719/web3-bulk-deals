@@ -3,12 +3,12 @@
 pragma solidity 0.8.19;
 
 import {Script} from "forge-std/Script.sol";
-import {BulkDeal} from "../src/BulkDeal.sol";
+import {BulkDealFactory} from "../src/BulkDealFactory.sol";
 
-contract DeployBulkDeal is Script {
-    function run() external returns (BulkDeal) {
+contract DeployBulkDealFactory is Script {
+    function run() external returns (BulkDealFactory) {
         vm.startBroadcast();
-        BulkDeal bulkDeal = new BulkDeal();
+        BulkDealFactory bulkDeal = new BulkDealFactory();
         vm.stopBroadcast();
         return bulkDeal;
     }

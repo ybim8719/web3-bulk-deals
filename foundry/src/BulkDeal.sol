@@ -4,13 +4,13 @@ pragma solidity ^0.8.19;
 contract BulkDeal {
     string private s_description;
     address private s_owner;
-    
-    constructor () {
+
+    constructor() {
         s_owner = msg.sender;
     }
 
-    modifier onlyOwner {
-        require(msg.sender == s_owner, "PROUT");   
+    modifier onlyOwner() {
+        require(msg.sender == s_owner, "PROUT");
         _;
     }
 
