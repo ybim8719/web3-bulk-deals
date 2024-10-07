@@ -44,8 +44,10 @@ contract BulkDealFactory {
     function removeMembership(address member) public ownerOnly {
         // if member is in the list of members...
         s_members[member] = true;
-        // is not
+        // TODO + has no pending proposal
         // refund if balance is ok
+        require(address(this).balance > MINIMAL_MEMBERSHIP_FEE, "insufficient funds");
+        s_members[member] = false;
     }
 
     function approveProposalDeployment() public ownerOnly {
@@ -53,7 +55,23 @@ contract BulkDealFactory {
         // publishedBulkDeals.push(address(publishedBulkDeal));
     }
 
-    function submitProposal() public memberOnly {}
+    function submitProposal(
+        string memory _goodsDescription,
+        uint256 _individualFeeInEur,
+        uint256 _requiredNbOfCustomers
+    ) public memberOnly {
+        BulkDealProposal({
+            goodsDescription: _goodsDescription,
+            individualFeeInEur: _individualFeeInEur,
+            requiredNbOfCustomers: _requiredNbOfCustomers,
+            seller: msg.sender,
+            wasPublished: false
+        });
+    }
+
+    function getProposalsByMember() public returns () {
+        
+    }
 
     // function getDeployedDeal(uint256 index) public view returns (address) {
     //     return publishedBulkDeals[index];
