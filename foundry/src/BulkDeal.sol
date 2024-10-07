@@ -1,24 +1,23 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
-contract BulkDeal {
-    string private s_description;
-    address private s_owner;
+import {BulkDealProposal} from "../src/structs/BulkDealProposal.sol";
 
-    constructor() {
-        s_owner = msg.sender;
+contract BulkDeal {
+    address immutable i_owner;
+    BulkDealProposal s_proposal;
+
+    constructor(BulkDealProposal memory proposal) {
+        i_owner = msg.sender;
+        s_proposal = proposal;
     }
 
     modifier onlyOwner() {
-        require(msg.sender == s_owner, "PROUT");
+        require(msg.sender == i_owner, "PROUT");
         _;
     }
 
-    function getDescription() public view returns (string memory) {
-        return s_description;
-    }
-
     function getOwner() public view returns (address) {
-        return s_owner;
+        return i_owner;
     }
 }
