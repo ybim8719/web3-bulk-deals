@@ -1,0 +1,26 @@
+[ ] Achieve contracts logic
+
+[ ] Create deployment Script (factory)
+
+[ ] Deploy factory on local anvil and cast methods online 
+
+[ ] Complete .env file 
+
+[ ] use cast wallet to store metamask private key
+
+[ ] Makefile to adapt
+
+[ ] Deploy bulkDealContract throught factory Contract (on anvil) and interact with it.
+
+[ ] Deploy factory on forkUrl sepolia
+
+[ ] Add chainlink price feed EUR/ETH 
+
+[ ] Add price converter library 
+
+[ ] unit tests 
+
+[ ] add a mock interface for price feed 
+
+
+
