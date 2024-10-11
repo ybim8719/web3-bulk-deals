@@ -99,9 +99,11 @@ cast call 0x5FbDB2315678afecb367f032d93F642f64180aa3 "retrieve()"
 cast --to-base 0x0000000000000000000000000000000000000000000000000000000000000539 dec
 ```
 
-### Install chainlist as a dependency 
+### Install chainlist as a dependency
 
+```
 forge install smartcontractkit/chainlink-brownie-contracts@1.2.0 --no-commit
+```
 
 version to be found here : https://github.com/smartcontractkit/chainlink-brownie-contracts
 current version is 1.2.0 
@@ -109,3 +111,16 @@ current version is 1.2.0
 
 in toml for imports : 
 remappings = ['@chainlink/contracts/=lib/chainlink-brownie-contracts/contracts/']
+
+## tests
+
+```
+forge test -vvv
+```
+
+forge test --mt <name-of-test-function>
+forge coverage --fork-url $SEPOLIA_RPC_URL
+forge test --mt <name-of-test-function> --fork-url $SEPOLIA_RPC_URL
+
+deploy using script 
+

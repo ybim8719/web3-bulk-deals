@@ -31,10 +31,13 @@ contract DealFactory {
     mapping(address vendor => mapping(address proposalId => DealProposalDeployed[])) s_deployedProposals;
     address[] private publishedBulkDeals;
 
+    AggregatorV3Interface private s_priceFeed;
+
     constructor() {
         i_owner = msg.sender;
         // Owner is added to member lists since he can also propose deals
         s_members[msg.sender] = true;
+        s_priceFeed = AggregatorV3Interface(priceFeed);
     }
 
     /** modifiers */
@@ -80,12 +83,12 @@ contract DealFactory {
     function approveAndDeployProposal(address seller, string memory internalId) public ownerOnly {
         // convert price in eth -> into eth in deployed contract
         DealProposalToValidate memory deal = s_pendingProposals[seller][internalId];
-        BulkDeal publishedDeal = new BulkDeal({
-            proposal: deal
-        });
+        // BulkDeal publishedDeal = new BulkDeal({
+        //     proposal: deal
+        // });
 
-        publishedBulkDeals.push(address(publishedDeal));
-        emit ProposalPublished(address(publishedDeal), seller, internalId);
+        // publishedBulkDeals.push(address(publishedDeal));
+        // emit ProposalPublished(address(publishedDeal), seller, internalId);
     }
 
     function submitProposal(
@@ -127,7 +130,16 @@ contract DealFactory {
         
     // }
 
+    function getOwner() external view returns(address) {
+        return i_owner;
+    }
+
     // function getDeployedDeal(uint256 index) public view returns (address) {
     //     return publishedBulkDeals[index];
     // }
+
+    function getVersion() public view returns (uint256){
+        AggregatorV3Interface priceFeed = AggregatorV3Interface(s_priceFeed);
+        return priceFeed.version();
+    }
 }
