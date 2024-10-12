@@ -31,8 +31,10 @@ contract DealFactory {
     error DealFactory__UnsufficientFunds(uint256 contractBalance);
     error DealFactory__ProposalAlreadySubmitted(string internalId);
     error DealFactory__ProposalToCancelWasNotFoundOrAlreadyDeployed(
-        string internalI
+        string internalId
     );
+    error DealFactory__OwnerOnly();
+    error DealFactory__MemberOnly();
 
     uint256 private constant MINIMAL_MEMBERSHIP_FEE = 0.01 ether;
 
@@ -44,7 +46,6 @@ contract DealFactory {
     );
 
     /** attributes */
-
     AggregatorV3Interface private immutable i_priceFeed;
     address immutable i_owner;
     mapping(address member => bool isRegistered) s_members;
@@ -61,18 +62,16 @@ contract DealFactory {
 
     /** modifiers */
     modifier ownerOnly() {
-        require(
-            msg.sender == i_owner,
-            "Action forbidden for non owner addresses"
-        );
+        if (msg.sender != i_owner) {
+            revert DealFactory__OwnerOnly();
+        }
         _;
     }
 
     modifier memberOnly() {
-        require(
-            s_members[msg.sender],
-            "Action forbidden for non member addresses"
-        );
+        if (s_members[msg.sender] == false) {
+            revert DealFactory__MemberOnly();
+        }
         _;
     }
 
