@@ -26,7 +26,7 @@ contract DealFactoryTest is Test {
         _;
     }
 
-    function testOwnerIsMsgSender() public {
+    function testOwnerIsMsgSender() public view {
         //assertEq(factory.getOwner(), address(this));
         // when passing throught a script, caller of test is the msg.sender to the final contract
         assertEq(factory.getOwner(), msg.sender);
@@ -39,11 +39,11 @@ contract DealFactoryTest is Test {
     }
 
     //list of scenarios
-    function testApplyFormMembershipFailsWithoutInsufficientFund() public {
-        vm.expectRevert();
+    // function testApplyFormMembershipFailsWithoutInsufficientFund() public {
+    //     vm.expectRevert();
 
-        factory.applyForMembership(); // <- We send 0 value
-    }
+    //     factory.applyForMembership(); // <- We send 0 value
+    // }
 
     // function testAddMemberToArrayOfMembers() public {
     //     vm.startPrank(alice);

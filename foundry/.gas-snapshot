@@ -1,0 +1,2 @@
+DealFactoryTest:testOwnerIsMsgSender() (gas: 8491)
+DealFactoryTest:testPriceFeedVersionIsAccurate() (gas: 11507)
