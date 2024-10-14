@@ -1,6 +1,8 @@
 [ ] Achieve contracts logic
 
-[ ] Create deployment Script (factory)
+[ ] Achieve contracts logic
+
+[x] Create deployment Script (factory)
 
 [ ] Deploy factory on local anvil and cast methods online 
 
@@ -14,13 +16,15 @@
 
 [ ] Deploy factory on forkUrl sepolia
 
-[ ] Add chainlink price feed EUR/ETH 
+[ ] Add chainlink price feed EUR/ETH (double price feed bro)
 
-[ ] Add price converter library 
+[x] Add price converter library 
 
 [ ] unit tests 
 
-[ ] add a mock interface for price feed 
+[ ] integration tests 
+
+[x] add a mock interface for price feed 
 
 
 

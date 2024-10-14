@@ -27,9 +27,9 @@ contract DealFactoryTest is Test {
     }
 
     function testOwnerIsMsgSender() public {
-        console.log(factory.getOwner());
-        console.log(address(this));
-        assertEq(factory.getOwner(), address(this));
+        //assertEq(factory.getOwner(), address(this));
+        // when passing throught a script, caller of test is the msg.sender to the final contract
+        assertEq(factory.getOwner(), msg.sender);
     }
 
     // retrived from mock chainlink or real oracle
@@ -38,32 +38,42 @@ contract DealFactoryTest is Test {
         assertEq(version, 4);
     }
 
-    // list of scenarios
+    //list of scenarios
+    function testApplyFormMembershipFailsWithoutInsufficientFund() public {
+        vm.expectRevert();
+
+        factory.applyForMembership(); // <- We send 0 value
+    }
+
+    // function testAddMemberToArrayOfMembers() public {
+    //     vm.startPrank(alice);
+    //     fundMe.fund{value: SEND_VALUE}();
+    //     vm.stopPrank();
+
+    //     address funder = fundMe.getFunder(alice);
+    //     assertEq(funder, alice);
+    // }
+
+    // can submit deal
+    // function testSubmitProposal() public {
+    //     vm.prank(alice);
+    //     fundMe.fund{value: SEND_VALUE}();
+    //     uint256 amountFunded = fundMe.getAddressToAmountFunded(alice);
+    //     assertEq(amountFunded, SEND_VALUE);
+    // }
+
+    // function testOnlyMemberCandSubmitProposal() public funded {
+    //     vm.expectRevert();
+    //     vm.prank(alice);
+    //     fundMe.withdraw();
+    // }
+
+    // function testOwnerCanValidateProposal() public funded {
+    //     vm.expectRevert();
+    //     vm.prank(alice);
+    //     fundMe.withdraw();
+    // }
+
+    //function canRemoveMembership()
+    // function onlySenderOrOwnerCanCancelProposal
 }
-
-// function testFundFailsWIthoutEnoughETH() public {
-//     vm.expectRevert(); // <- The next line after this one should revert! If not test fails.
-//     fundMe.fund(); // <- We send 0 value
-// }
-
-// function testFundUpdatesFundDataStructure() public {
-//     vm.prank(alice);
-//     fundMe.fund{value: SEND_VALUE}();
-//     uint256 amountFunded = fundMe.getAddressToAmountFunded(alice);
-//     assertEq(amountFunded, SEND_VALUE);
-// }
-
-// function testAddsFunderToArrayOfFunders() public {
-//     vm.startPrank(alice);
-//     fundMe.fund{value: SEND_VALUE}();
-//     vm.stopPrank();
-
-//     address funder = fundMe.getFunder(0);
-//     assertEq(funder, alice);
-// }
-
-// function testOnlyOwnerCanWithdraw() public funded {
-//     vm.expectRevert();
-//     vm.prank(alice);
-//     fundMe.withdraw();
-// }
