@@ -78,9 +78,6 @@ contract DealFactory {
         _;
     }
 
-    /**
-     * prout
-     */
 
     // Any address could join the membership by paying a membership fee
     function applyForMembership() public payable {
@@ -95,7 +92,7 @@ contract DealFactory {
 
     function removeMembership(address memberToRemove) public ownerOnly {
         require(s_members[memberToRemove] = true, "not in list");
-        // TODO + has no pending proposal
+        // @TODO + has no pending proposal
         // require(s_members[memberToRemove] != , "not in list");
 
         // refund membership fee if contract funds are ok

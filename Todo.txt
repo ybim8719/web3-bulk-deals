@@ -1,30 +1,38 @@
 [ ] Achieve contracts logic
 
-[ ] Achieve contracts logic
+[ ] Test functions on remix
+[ ] for Factory 
+[ ] for BulkDeal
 
 [x] Create deployment Script (factory)
-
-[ ] Deploy factory on local anvil and cast methods online 
+[ ] for Factory 
+[ ] for BulkDeal
+[x] Deploy factory on local anvil and cast methods online 
 
 [ ] Complete .env file 
 
 [ ] use cast wallet to store metamask private key
 
-[ ] Makefile to adapt
+[x] Makefile to adapt
+[ ] for Factory 
+[ ] for BulkDeal
 
-[ ] Deploy bulkDealContract throught factory Contract (on anvil) and interact with it.
+[x] Deploy bulkDealContract throught factory Contract (on anvil) and interact with it.
 
 [ ] Deploy factory on forkUrl sepolia
+[ ] for Factory 
+[ ] for BulkDeal
 
 [ ] Add chainlink price feed EUR/ETH (double price feed bro)
 
 [x] Add price converter library 
 
 [ ] unit tests 
+[ ] for Factory 
+[ ] for BulkDeal
 
-[ ] integration tests 
 
 [x] add a mock interface for price feed 
 
-
+[ ] add minimal front end (with ethers)
 
