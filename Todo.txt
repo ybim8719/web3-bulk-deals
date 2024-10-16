@@ -13,6 +13,10 @@
 
 [ ] use cast wallet to store metamask private key
 
+
+[ ] deploy with fork url on sepolia 
+
+
 [x] Makefile to adapt
 [ ] for Factory 
 [ ] for BulkDeal

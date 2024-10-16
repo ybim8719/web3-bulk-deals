@@ -10,47 +10,33 @@ import {PriceConverter} from "./utils/PriceConverter.sol";
 //msg.value.getConversionRate(i_priceFeed) >= MINIMUM_USD,
 // require(PriceConverter.getConversionRate(msg.value) >= MINIMUM_USD, "You need to spend more ETH!");
 
-//for (
-//  uint256 funderIndex = 0;
-//funderIndex < s_funders.length;
-// funderIndex++
-//) {
-//  address funder = s_funders[funderIndex];
-// s_addressToAmountFunded[funder] = 0;
-//}
-//s_funders = new address[](0);
-
 /**
  *
  */
 contract DealFactory {
     using PriceConverter for uint256;
-    /**
-     * Errors
-     */
-
-    error DealFactory__InvalidMembershipFee(uint256 required, uint256 passed);
+    /** * Errors*/
+    error DealFactory__InvalidMembershipFeeSent(uint256 required, uint256 passed);
     error DealFactory__ApplierAlreadyRegistered(address applier);
     error DealFactory__UnsufficientFunds(uint256 contractBalance);
-    error DealFactory__ProposalAlreadySubmitted(string internalId);
-    error DealFactory__ProposalToCancelWasNotFoundOrAlreadyDeployed(string internalId);
+    error DealFactory__ProposalAlreadySubmitted(uint256 internalId);
+    error DealFactory__ProposalToCancelWasNotFoundOrAlreadyDeployed(uint256 internalId);
+    error DealFactory__InexistantMember(address memberToRemove);
+    error DealFactory__MemberHasPendingProposal(address memberToRemove);
+    error DealFactory__ProposalNotFound(uint256 internalId, address seller);
     error DealFactory__OwnerOnly();
     error DealFactory__MemberOnly();
 
     uint256 private constant MINIMAL_MEMBERSHIP_FEE = 0.01 ether;
 
-    /**
-     * events
-     */
-    event ProposalPublished(address indexed _newContract, address indexed _seller, string _internalId);
+    /*** events*/
+    event ProposalPublished(address indexed _newContract, address indexed _seller, uint256 _internalId);
 
-    /**
-     * attributes
-     */
+    /** * attributes */
     AggregatorV3Interface private immutable i_priceFeed;
     address immutable i_owner;
     mapping(address member => bool isRegistered) s_members;
-    mapping(address vendor => mapping(string proposalId => DealProposalToValidate)) s_pendingProposals;
+    mapping(address vendor => DealProposalToValidate[]) s_pendingProposals;
     mapping(address vendor => mapping(address proposalId => DealProposalDeployed[])) s_deployedProposals;
     address[] private publishedBulkDeals;
 
@@ -61,9 +47,7 @@ contract DealFactory {
         i_priceFeed = AggregatorV3Interface(priceFeed);
     }
 
-    /**
-     * modifiers
-     */
+    /*** modifiers */
     modifier ownerOnly() {
         if (msg.sender != i_owner) {
             revert DealFactory__OwnerOnly();
@@ -78,22 +62,25 @@ contract DealFactory {
         _;
     }
 
-
-    // Any address could join the membership by paying a membership fee
+    // OK / Any address could join the membership by paying a membership fee
     function applyForMembership() public payable {
         if (msg.value == MINIMAL_MEMBERSHIP_FEE) {
-            revert DealFactory__InvalidMembershipFee({required: MINIMAL_MEMBERSHIP_FEE, passed: msg.value});
+            revert DealFactory__InvalidMembershipFeeSent({required: MINIMAL_MEMBERSHIP_FEE, passed: msg.value});
         }
         if (s_members[msg.sender] == true) {
             revert DealFactory__ApplierAlreadyRegistered({applier: msg.sender});
         }
         s_members[msg.sender] = true;
     }
-
+    // OK /
     function removeMembership(address memberToRemove) public ownerOnly {
-        require(s_members[memberToRemove] = true, "not in list");
-        // @TODO + has no pending proposal
-        // require(s_members[memberToRemove] != , "not in list");
+        if (s_members[memberToRemove] = true) {
+            revert DealFactory__InexistantMember(memberToRemove);
+        }
+    
+        if (s_pendingProposals[memberToRemove].length > 0) {
+            revert DealFactory__MemberHasPendingProposal(memberToRemove);
+        }
 
         // refund membership fee if contract funds are ok
         if (address(this).balance > MINIMAL_MEMBERSHIP_FEE) {
@@ -105,17 +92,31 @@ contract DealFactory {
         s_members[memberToRemove] = false;
     }
 
-    // deployment of proposal by admin
-    function approveAndDeployProposal(address seller, string memory internalId) public ownerOnly {
-        // convert eur unitprice into eth in deployed contract with chainlink oracle
-        DealProposalToValidate memory deal = s_pendingProposals[seller][internalId];
+    // acceptance and deployment of a proposal by owner
+    function approveAndDeployProposal(address seller, uint256 internalId) public ownerOnly {
+        // proposal not found
+        if (s_pendingProposals[seller].length == 0) {
+            revert DealFactory__ProposalNotFound(internalId, seller);
+        }
 
-        // BulkDeal publishedDeal = new BulkDeal({
-        //     proposal: deal
-        // });
+        for (uint256 i = 0; i < s_pendingProposals[seller].length; i++) {
+            if (s_pendingProposals[seller][i].internalId == internalId) {
+                DealProposalToValidate memory deal = s_pendingProposals[seller][i];
+                // TODO / convert eur individualFeeInEur into individualFeeInEth with chainlink datafeed
 
-        // publishedBulkDeals.push(address(publishedDeal));
-        // emit ProposalPublished(address(publishedDeal), seller, internalId);
+                DealProposalDeployed memory enrichedDeal = DealProposalDeployed({
+                    goodsDescription: deal.goodsDescription,
+                    individualFeeInEth: 111111,
+                    requiredNbOfCustomers: deal.requiredNbOfCustomers,
+                    seller: seller,
+                    imageUrl: deal.imageUrl,
+                    internalId: deal.internalId
+                });
+                BulkDeal deployedDeal = new BulkDeal(enrichedDeal);
+                publishedBulkDeals.push(address(deployedDeal));
+                emit ProposalPublished(address(deployedDeal), seller, internalId);
+            }
+        }
     }
 
     function submitProposal(
@@ -123,29 +124,46 @@ contract DealFactory {
         uint256 _individualFeeInEur,
         uint256 _requiredNbOfCustomers,
         string memory _imageUrl,
-        string memory internalId
+        uint256 _internalId
     ) public memberOnly {
-        // check if proposal (with internalId) sent by customer is not already submitted
-        if (s_pendingProposals[msg.sender][internalId].individualFeeInEur == 0) {
-            revert DealFactory__ProposalAlreadySubmitted(internalId);
+        // check if proposal (by internalId) sent by customer is not already in list
+        if (s_pendingProposals[msg.sender].length > 0) {
+            for (uint256 i = 0; i < s_pendingProposals[msg.sender].length; i++) {
+                if (s_pendingProposals[msg.sender][i].internalId == _internalId) {
+                    revert DealFactory__ProposalAlreadySubmitted(_internalId);
+                }
+            }
         }
 
         DealProposalToValidate memory deal = DealProposalToValidate({
             goodsDescription: _goodsDescription,
             individualFeeInEur: _individualFeeInEur,
             requiredNbOfCustomers: _requiredNbOfCustomers,
-            imageUrl: _imageUrl
+            imageUrl: _imageUrl,
+            internalId: _internalId
         });
-        s_pendingProposals[msg.sender][internalId] = deal;
+        s_pendingProposals[msg.sender].push(deal);
     }
 
-    function cancelPendingProposal(string memory internalId) public memberOnly {
-        // check if proposal (with internalId) sent by customer is not already submitted
-        if (s_pendingProposals[msg.sender][internalId].individualFeeInEur != 0) {
-            revert DealFactory__ProposalToCancelWasNotFoundOrAlreadyDeployed(internalId);
+//TODO
+    function cancelPendingProposal(uint256 _internalId) public memberOnly {
+        if (s_pendingProposals[msg.sender].length == 0) {
+            revert DealFactory__ProposalNotFound(_internalId, msg.sender);
         }
-        // remove proposal from pending list
-        s_pendingProposals[msg.sender][internalId].individualFeeInEur = 0;
+
+        uint256 indexToRemove = 10000;
+        for (uint256 i = 0; i < s_pendingProposals[msg.sender].length; i++) {
+            if (s_pendingProposals[msg.sender][i].internalId == _internalId) {
+                indexToRemove = i;
+            }
+        }
+
+        if (indexToRemove != 10000) {
+            for (uint256 i = indexToRemove; i < s_pendingProposals[msg.sender].length - 1; i++) {
+                s_pendingProposals[msg.sender][i] = s_pendingProposals[msg.sender][i + 1];
+            }
+            s_pendingProposals[msg.sender].pop();
+        }
     }
 
     /**
@@ -155,22 +173,20 @@ contract DealFactory {
         return MINIMAL_MEMBERSHIP_FEE;
     }
 
-    // function getProposalsByMember() public returns () {
-
-    // }
-
     function getOwner() external view returns (address) {
         return i_owner;
     }
-
-    // function getDeployedDeal(uint256 index) public view returns (address) {
-    //     return publishedBulkDeals[index];
-    // }
 
     function getVersion() public view returns (uint256) {
         AggregatorV3Interface priceFeed = AggregatorV3Interface(i_priceFeed);
         return priceFeed.version();
     }
+
+    // function getDeployedDeal(uint256 index) public view returns (address) {
+    //     return publishedBulkDeals[index];
+    // }
+       // function getProposalsByMember() public returns () {
+    // }
 
     fallback() external payable {}
 
