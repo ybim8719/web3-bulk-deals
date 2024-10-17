@@ -27,12 +27,14 @@ contract DealFactory {
     error DealFactory__OwnerOnly();
     error DealFactory__MemberOnly();
 
+    /** * Const*/
     uint256 private constant MINIMAL_MEMBERSHIP_FEE = 0.01 ether;
+    uint256 private constant MAX_PENDING_PROPOSALS_PER_MEMBER = 10; 
 
     /*** events*/
     event ProposalPublished(address indexed _newContract, address indexed _seller, uint256 _internalId);
 
-    /** * attributes */
+    /** * storage */
     AggregatorV3Interface private immutable i_priceFeed;
     address immutable i_owner;
     mapping(address member => bool isRegistered) s_members;
@@ -99,11 +101,11 @@ contract DealFactory {
             revert DealFactory__ProposalNotFound(internalId, seller);
         }
 
+        uint256 indexToRemove = MAX_PENDING_PROPOSALS_PER_MEMBER;
         for (uint256 i = 0; i < s_pendingProposals[seller].length; i++) {
             if (s_pendingProposals[seller][i].internalId == internalId) {
                 DealProposalToValidate memory deal = s_pendingProposals[seller][i];
                 // TODO / convert eur individualFeeInEur into individualFeeInEth with chainlink datafeed
-
                 DealProposalDeployed memory enrichedDeal = DealProposalDeployed({
                     goodsDescription: deal.goodsDescription,
                     individualFeeInEth: 111111,
@@ -115,8 +117,10 @@ contract DealFactory {
                 BulkDeal deployedDeal = new BulkDeal(enrichedDeal);
                 publishedBulkDeals.push(address(deployedDeal));
                 emit ProposalPublished(address(deployedDeal), seller, internalId);
+                indexToRemove = i;
             }
         }
+        removePendingProposal(indexToRemove, msg.sender);
     }
 
     function submitProposal(
@@ -145,24 +149,27 @@ contract DealFactory {
         s_pendingProposals[msg.sender].push(deal);
     }
 
-//TODO
+    // member can remove his previous proposal
     function cancelPendingProposal(uint256 _internalId) public memberOnly {
         if (s_pendingProposals[msg.sender].length == 0) {
             revert DealFactory__ProposalNotFound(_internalId, msg.sender);
         }
-
-        uint256 indexToRemove = 10000;
+        uint256 indexToRemove = MAX_PENDING_PROPOSALS_PER_MEMBER;
+        // find correct index in proposal[] 
         for (uint256 i = 0; i < s_pendingProposals[msg.sender].length; i++) {
             if (s_pendingProposals[msg.sender][i].internalId == _internalId) {
                 indexToRemove = i;
             }
         }
+        removePendingProposal(indexToRemove, msg.sender);
+    }
 
-        if (indexToRemove != 10000) {
-            for (uint256 i = indexToRemove; i < s_pendingProposals[msg.sender].length - 1; i++) {
-                s_pendingProposals[msg.sender][i] = s_pendingProposals[msg.sender][i + 1];
+    function removePendingProposal(uint256 _indexToRemove, address _member) internal {
+        if (_indexToRemove < MAX_PENDING_PROPOSALS_PER_MEMBER) {
+            for (uint256 i = _indexToRemove; i < s_pendingProposals[_member].length - 1; i++) {
+                s_pendingProposals[_member][i] = s_pendingProposals[_member][i + 1];
             }
-            s_pendingProposals[msg.sender].pop();
+            s_pendingProposals[_member].pop();
         }
     }
 
