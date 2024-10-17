@@ -9,30 +9,28 @@ import {DeployDealFactory} from "../../script/DeployDealFactory.s.sol";
 
 contract DealFactoryTest is Test {
     DealFactory factory;
-    address alice = makeAddr("alice");
+    address coconuts = makeAddr("coconuts");
     uint256 constant STARTING_BALANCE = 10 ether;
-    uint256 private constant SEND_VALUE = 0.1 ether;
+    uint256 private constant SEND_VALUE = 0.01 ether;
 
     function setUp() external {
         DeployDealFactory deployFactory = new DeployDealFactory();
         factory = deployFactory.run();
-        vm.deal(alice, STARTING_BALANCE);
+        vm.deal(coconuts, STARTING_BALANCE);
     }
 
-    modifier fundUser() {
-        vm.prank(alice);
-        // fundMe.fund{value: SEND_VALUE}();
+    modifier addMember() {
+        vm.prank(coconuts);
+        factory.applyForMembership{value: SEND_VALUE}();
         // assert(address(fundMe).balance > 0);
         _;
     }
 
     function testOwnerIsMsgSender() public view {
-        //assertEq(factory.getOwner(), address(this));
         // when passing throught a script, caller of test is the msg.sender to the final contract
         assertEq(factory.getOwner(), msg.sender);
     }
 
-    // retrived from mock chainlink or real oracle
     function testPriceFeedVersionIsAccurate() public view {
         uint256 version = factory.getVersion();
         assertEq(version, 4);

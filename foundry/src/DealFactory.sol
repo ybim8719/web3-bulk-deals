@@ -6,9 +6,7 @@ import {DealProposalToValidate, DealProposalDeployed} from "../src/structs/BulkD
 import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import {PriceConverter} from "./utils/PriceConverter.sol";
 
-//uint256 public constant MINIMUM_USD = 5 * 10 ** 18;
-//msg.value.getConversionRate(i_priceFeed) >= MINIMUM_USD,
-// require(PriceConverter.getConversionRate(msg.value) >= MINIMUM_USD, "You need to spend more ETH!");
+
 
 /**
  *
@@ -26,21 +24,17 @@ contract DealFactory {
     error DealFactory__ProposalNotFound(uint256 internalId, address seller);
     error DealFactory__OwnerOnly();
     error DealFactory__MemberOnly();
-
     /** * Const*/
     uint256 private constant MINIMAL_MEMBERSHIP_FEE = 0.01 ether;
     uint256 private constant MAX_PENDING_PROPOSALS_PER_MEMBER = 10; 
-
     /*** events*/
     event ProposalPublished(address indexed _newContract, address indexed _seller, uint256 _internalId);
-
     /** * storage */
     AggregatorV3Interface private immutable i_priceFeed;
-    address immutable i_owner;
-    mapping(address member => bool isRegistered) s_members;
-    mapping(address vendor => DealProposalToValidate[]) s_pendingProposals;
-    mapping(address vendor => mapping(address proposalId => DealProposalDeployed[])) s_deployedProposals;
-    address[] private publishedBulkDeals;
+    address immutable private i_owner;
+    mapping(address member => bool isRegistered) private s_members;
+    mapping(address vendor => DealProposalToValidate[]) private s_pendingProposals;
+    mapping(address vendor => mapping(uint256 proposalId => address deployed)) private s_deployedProposals;
 
     constructor(address priceFeed) {
         i_owner = msg.sender;
@@ -96,37 +90,41 @@ contract DealFactory {
 
     // acceptance and deployment of a proposal by owner
     function approveAndDeployProposal(address seller, uint256 internalId) public ownerOnly {
-        // proposal not found
         if (s_pendingProposals[seller].length == 0) {
             revert DealFactory__ProposalNotFound(internalId, seller);
         }
-
+        // find proposal and deploy it
         uint256 indexToRemove = MAX_PENDING_PROPOSALS_PER_MEMBER;
         for (uint256 i = 0; i < s_pendingProposals[seller].length; i++) {
             if (s_pendingProposals[seller][i].internalId == internalId) {
                 DealProposalToValidate memory deal = s_pendingProposals[seller][i];
                 // TODO / convert eur individualFeeInEur into individualFeeInEth with chainlink datafeed
+                //uint256 public constant MINIMUM_USD = 5 * 10 ** 18;
+                uint256 requiredAmountInWei = PriceConverter.getConversionRate(deal.individualFeeInUsd, i_priceFeed);
+                // GO deploy
                 DealProposalDeployed memory enrichedDeal = DealProposalDeployed({
                     goodsDescription: deal.goodsDescription,
-                    individualFeeInEth: 111111,
+                    individualFeeInWei: requiredAmountInWei,
                     requiredNbOfCustomers: deal.requiredNbOfCustomers,
                     seller: seller,
                     imageUrl: deal.imageUrl,
                     internalId: deal.internalId
                 });
                 BulkDeal deployedDeal = new BulkDeal(enrichedDeal);
-                publishedBulkDeals.push(address(deployedDeal));
+                // add to deployed list
+                s_deployedProposals[seller][deal.internalId] = address(deployedDeal);
                 emit ProposalPublished(address(deployedDeal), seller, internalId);
                 indexToRemove = i;
             }
         }
+        // remove from pending list
         removePendingProposal(indexToRemove, msg.sender);
     }
 
     function submitProposal(
         string memory _goodsDescription,
-        uint256 _individualFeeInEur,
-        uint256 _requiredNbOfCustomers,
+        uint256 _individualFeeInUsd,
+            uint256 _requiredNbOfCustomers,
         string memory _imageUrl,
         uint256 _internalId
     ) public memberOnly {
@@ -141,7 +139,7 @@ contract DealFactory {
 
         DealProposalToValidate memory deal = DealProposalToValidate({
             goodsDescription: _goodsDescription,
-            individualFeeInEur: _individualFeeInEur,
+            individualFeeInUsd: _individualFeeInUsd,
             requiredNbOfCustomers: _requiredNbOfCustomers,
             imageUrl: _imageUrl,
             internalId: _internalId
@@ -196,6 +194,5 @@ contract DealFactory {
     // }
 
     fallback() external payable {}
-
     receive() external payable {}
 }

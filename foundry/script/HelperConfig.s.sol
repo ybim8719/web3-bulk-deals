@@ -15,7 +15,7 @@ contract HelperConfig is Script {
     MockV3Aggregator mockPriceFeed;
 
     struct NetworkConfig {
-        address priceFeed; // ETH/USD price feed address
+        address priceFeed; // ETH/USD price feed address (cost of USD for 1ETH)
     }
 
     constructor() {
@@ -27,6 +27,7 @@ contract HelperConfig is Script {
     }
 
     function getSepoliaEthConfig() public pure returns (NetworkConfig memory) {
+        // 
         NetworkConfig memory sepoliaConfig = NetworkConfig({priceFeed: 0x694AA1769357215DE4FAC081bf1f309aDC325306});
         return sepoliaConfig;
     }
