@@ -32,7 +32,7 @@ contract DealFactoryTest is Test {
     }
 
     function testPriceFeedVersionIsAccurate() public view {
-        uint256 version = factory.getVersion();
+        uint256 version = factory.getPriceFeedVersion();
         assertEq(version, 4);
     }
 
