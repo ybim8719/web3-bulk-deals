@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.19;
 
-import {DealProposalDeployed} from "../src/structs/BulkDealProposal.sol";
+import {DeployedDeal} from "../src/structs/BulkDealProposal.sol";
 
 contract BulkDeal {
     /**
@@ -15,10 +15,10 @@ contract BulkDeal {
      * data
      */
     address private immutable i_owner;
-    DealProposalDeployed private s_deal;
+    DeployedDeal private s_deal;
     address[] s_customers;
 
-    constructor(DealProposalDeployed memory deal) {
+    constructor(DeployedDeal memory deal) {
         i_owner = deal.seller;
         s_deal = deal;
     }
@@ -48,9 +48,5 @@ contract BulkDeal {
         return i_owner;
     }
 
-    function getDeal() public view returns (DealProposalDeployed memory) {}
-
-    // function getCurrentPriceInEth() public view returns() {
-
-    // }
+    function getDeal() public view returns (DeployedDeal memory) {}
 }

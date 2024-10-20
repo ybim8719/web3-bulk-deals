@@ -19,13 +19,14 @@ contract DealFactoryTest is Test {
         vm.deal(coconuts, STARTING_BALANCE);
     }
 
-    modifier addMember() {
+    modifier registerMember() {
         vm.prank(coconuts);
         factory.applyForMembership{value: SEND_VALUE}();
-        // assert(address(fundMe).balance > 0);
+        assert(address(factory).balance > 0);
         _;
     }
 
+    /*** MEMBERSHIP */
     function testOwnerIsMsgSender() public view {
         // when passing throught a script, caller of test is the msg.sender to the final contract
         assertEq(factory.getOwner(), msg.sender);
@@ -36,15 +37,43 @@ contract DealFactoryTest is Test {
         assertEq(version, 4);
     }
 
-    //list of scenarios
-    // function testApplyFormMembershipFailsWithoutInsufficientFund() public {
-    //     vm.expectRevert();
+    function testOwnerIsAlsoMember() public view {
+        assertEq(factory.getMember(msg.sender), true);
+    }
 
-    //     factory.applyForMembership(); // <- We send 0 value
-    // }
+    function testApplyFormMembershipFailsWithInsufficientFund() public {
+        vm.prank(coconuts);
+        vm.expectRevert();
+        factory.applyForMembership(); // <- We send 0 value
+    }
 
-    // function testAddMemberToArrayOfMembers() public {
-    //     vm.startPrank(alice);
+    // test can apply if already member
+
+    // can't apply if sent money is not exact
+
+    // apply to membership works
+
+    // only owener can remove membership
+
+    // can't remove member if has pending proposals
+
+    // removal of member worked and the member fees were sent to him
+
+    // can submit proposal
+
+    // only owner can deploy proposal
+
+    //
+
+    /*** SUBMIT PROPOSAL */
+
+    /*** CANCEL PROPOSAL*/
+
+    /*** DEPLOY PROPOSAL*/
+
+    //
+    //function testAddMemberToArrayOfMembers() public {
+    //   vm.startPrank(alice);
     //     fundMe.fund{value: SEND_VALUE}();
     //     vm.stopPrank();
 

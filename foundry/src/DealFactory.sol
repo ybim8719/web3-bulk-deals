@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 import {BulkDeal} from "./BulkDeal.sol";
-import {DealProposalToValidate, DealProposalDeployed} from "../src/structs/BulkDealProposal.sol";
+import {DealProposalToValidate, DeployedDeal, DeployedMinimal} from "../src/structs/BulkDealProposal.sol";
 import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import {PriceConverter} from "./utils/PriceConverter.sol";
 
@@ -45,9 +45,9 @@ contract DealFactory {
     AggregatorV3Interface private immutable i_priceFeed;
     address private immutable i_owner;
     mapping(address member => bool isRegistered) private s_members;
-    mapping(address vendor => DealProposalToValidate[])
+    mapping(address vendor => DealProposalToValidate[] pending)
         private s_pendingProposals;
-    mapping(address vendor => mapping(uint256 proposalId => address deployed))
+    mapping(address vendor => DeployedMinimal[] deployed)
         private s_deployedProposals;
 
     constructor(address priceFeed) {
@@ -74,7 +74,7 @@ contract DealFactory {
 
     // IS OK / Any address could join the membership by paying a membership fee
     function applyForMembership() public payable {
-        if (msg.value == MEMBERSHIP_FEE) {
+        if (msg.value != MEMBERSHIP_FEE) {
             revert DealFactory__InvalidMembershipFeeSent({
                 required: MEMBERSHIP_FEE,
                 passed: msg.value
@@ -85,6 +85,10 @@ contract DealFactory {
         }
         s_members[msg.sender] = true;
     }
+
+    // TODO, can't remove owner from membership
+
+    // MAKE the pending proposal payable ?
 
     // IS OK /
     function removeMembership(address memberToRemove) public ownerOnly {
@@ -189,20 +193,22 @@ contract DealFactory {
                     i_priceFeed
                 );
                 // GO deploy
-                DealProposalDeployed
-                    memory enrichedDeal = DealProposalDeployed({
-                        goodsDescription: deal.goodsDescription,
-                        individualFeeInWei: requiredAmountInWei,
-                        requiredNbOfCustomers: deal.requiredNbOfCustomers,
-                        seller: _seller,
-                        imageUrl: deal.imageUrl,
-                        internalId: deal.internalId
-                    });
+                DeployedDeal memory enrichedDeal = DeployedDeal({
+                    goodsDescription: deal.goodsDescription,
+                    individualFeeInWei: requiredAmountInWei,
+                    requiredNbOfCustomers: deal.requiredNbOfCustomers,
+                    seller: _seller,
+                    imageUrl: deal.imageUrl,
+                    internalId: deal.internalId
+                });
                 BulkDeal deployedDeal = new BulkDeal(enrichedDeal);
                 // add to deployed list
-                s_deployedProposals[_seller][deal.internalId] = address(
-                    deployedDeal
-                );
+
+                DeployedMinimal memory minimal = DeployedMinimal({
+                    deployed: address(deployedDeal),
+                    internalId: _internalId
+                });
+                s_deployedProposals[_seller].push(minimal);
                 emit ProposalPublished(
                     address(deployedDeal),
                     _seller,
@@ -254,17 +260,39 @@ contract DealFactory {
         return priceFeed.version();
     }
 
+    function getUsdToEthCurrentRate() public view returns (int256) {
+        AggregatorV3Interface priceFeed = AggregatorV3Interface(i_priceFeed);
+        (, int256 answer, , , ) = priceFeed.latestRoundData();
+        return answer;
+    }
+
     function getNbOfPendingProposals(
         address member
     ) external view returns (uint256) {
         return s_pendingProposals[member].length;
     }
 
-    // function getDeployedDeal(uint256 index) public view returns (address) {
-    //     return publishedBulkDeals[index];
-    // }
-    // function getProposalsByMember() public returns () {
-    // }
+    function getPendingProposal(
+        uint256 index,
+        address member
+    ) public view returns (DealProposalToValidate memory) {
+        return s_pendingProposals[member][index];
+    }
+
+    function getDeployed(
+        address member,
+        uint256 index
+    ) public view returns (DeployedMinimal memory) {
+        return s_deployedProposals[member][index];
+    }
+
+    function getNbOfDeployed(address member) public view returns (uint256) {
+        return s_deployedProposals[member].length;
+    }
+
+    function getMember(address member) public view returns (bool) {
+        return s_members[member];
+    }
 
     fallback() external payable {}
 

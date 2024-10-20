@@ -10,12 +10,17 @@ struct DealProposalToValidate {
     uint256 internalId;
 }
 
-struct DealProposalDeployed {
+struct DeployedDeal {
     // todo ajouter date de fin de la vente
     string goodsDescription;
     uint256 individualFeeInWei;
     uint256 requiredNbOfCustomers;
     address seller;
     string imageUrl;
+    uint256 internalId;
+}
+
+struct DeployedMinimal {
+    address deployed;
     uint256 internalId;
 }
