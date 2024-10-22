@@ -13,6 +13,13 @@ contract DealFactoryTest is Test {
     uint256 constant STARTING_BALANCE = 10 ether;
     uint256 private constant SEND_VALUE = 0.01 ether;
 
+    string private constant TEST_DESCRIPTION =
+        "bulk packs of 1000 eggs to be divided by 5";
+    uint256 private constant TEST_INVIDIDUAL_FEE = 100;
+    uint256 private constant TEST_NB_OF_CUSTOMERS = 5;
+    string private constant TEST_IMG_URL = "www.eggs-url/1";
+    uint256 private constant TEST_INTERNAL_ID = 11111100;
+
     function setUp() external {
         DeployDealFactory deployFactory = new DeployDealFactory();
         factory = deployFactory.run();
@@ -47,11 +54,28 @@ contract DealFactoryTest is Test {
         factory.applyForMembership(); // <- We send 0 value
     }
 
-    // test can apply if already member
+    function testCantApplyOfAlreadyMember() public registerMember {
+        vm.prank(coconuts);
+        vm.expectRevert();
+        factory.applyForMembership{value: SEND_VALUE}();
+    }
 
-    // can't apply if sent money is not exact
-
-    // apply to membership works
+    /*** SUBMIT PROPOSAL */
+    function testCanSubmitProposal() public registerMember {
+        vm.prank(coconuts);
+        factory.submitProposal(
+            TEST_DESCRIPTION,
+            TEST_INVIDIDUAL_FEE,
+            TEST_NB_OF_CUSTOMERS,
+            TEST_IMG_URL,
+            TEST_INTERNAL_ID
+        );
+        assertEq(factory.getNbOfPendingProposals(address(coconuts)), 1);
+        assertEq(
+            factory.getPendingProposal(0, address(coconuts)).internalId,
+            TEST_INTERNAL_ID
+        );
+    }
 
     // only owener can remove membership
 
@@ -64,8 +88,6 @@ contract DealFactoryTest is Test {
     // only owner can deploy proposal
 
     //
-
-    /*** SUBMIT PROPOSAL */
 
     /*** CANCEL PROPOSAL*/
 
