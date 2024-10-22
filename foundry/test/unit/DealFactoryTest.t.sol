@@ -30,6 +30,7 @@ contract DealFactoryTest is Test {
         vm.prank(coconuts);
         factory.applyForMembership{value: SEND_VALUE}();
         assert(address(factory).balance > 0);
+        assertEq(factory.getMember(address(coconuts)), true);
         _;
     }
 
@@ -60,6 +61,16 @@ contract DealFactoryTest is Test {
         factory.applyForMembership{value: SEND_VALUE}();
     }
 
+    function testMemberCantRemoveMembership() public registerMember {
+        vm.prank(coconuts);
+        vm.expectRevert();
+        factory.removeMembership(address(coconuts));
+    }
+
+    function testOwnerCanRemoveMembership() public registerMember {
+        factory.removeMembership(address(coconuts));
+    }
+
     /*** SUBMIT PROPOSAL */
     function testCanSubmitProposal() public registerMember {
         vm.prank(coconuts);
@@ -76,8 +87,6 @@ contract DealFactoryTest is Test {
             TEST_INTERNAL_ID
         );
     }
-
-    // only owener can remove membership
 
     // can't remove member if has pending proposals
 
