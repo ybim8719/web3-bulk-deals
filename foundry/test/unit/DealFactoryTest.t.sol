@@ -15,7 +15,7 @@ contract DealFactoryTest is Test {
     uint256 private constant SEND_VALUE = 0.01 ether;
 
     string private constant TEST_DESCRIPTION =
-        "bulk packs of 1000 eggs to be divided by 5";
+        "bulk packs of 100.000 eggs to be divided by 5";
     uint256 private constant TEST_INVIDIDUAL_FEE = 100;
     uint256 private constant TEST_NB_OF_CUSTOMERS = 5;
     string private constant TEST_IMG_URL = "www.eggs-url/1";
@@ -27,11 +27,28 @@ contract DealFactoryTest is Test {
         vm.deal(coconuts, STARTING_BALANCE);
     }
 
-    modifier registerMember() {
+    modifier registered() {
         vm.prank(coconuts);
         factory.applyForMembership{value: SEND_VALUE}();
         assert(address(factory).balance == SEND_VALUE);
         assertEq(factory.getMember(address(coconuts)), true);
+        _;
+    }
+
+    modifier registeredAndSubmitted() {
+        vm.prank(coconuts);
+        factory.applyForMembership{value: SEND_VALUE}();
+        assert(address(factory).balance == SEND_VALUE);
+        assertEq(factory.getMember(address(coconuts)), true);
+        vm.prank(coconuts);
+        factory.submitProposal(
+            TEST_DESCRIPTION,
+            TEST_INVIDIDUAL_FEE,
+            TEST_NB_OF_CUSTOMERS,
+            TEST_IMG_URL,
+            TEST_INTERNAL_ID
+        );
+        assertEq(factory.getNbOfPendingProposals(address(coconuts)), 1);
         _;
     }
 
@@ -56,19 +73,19 @@ contract DealFactoryTest is Test {
         factory.applyForMembership(); // <- We send 0 value
     }
 
-    function testCantApplyOfAlreadyMember() public registerMember {
+    function testCantApplyOfAlreadyMember() public registered {
         vm.prank(coconuts);
         vm.expectRevert();
         factory.applyForMembership{value: SEND_VALUE}();
     }
 
-    function testMemberCantRemoveMembership() public registerMember {
+    function testMemberCantRemoveMembership() public registered {
         vm.prank(coconuts);
         vm.expectRevert();
         factory.removeMembership(address(coconuts));
     }
 
-    function testOwnerCanRemoveMembership() public registerMember {
+    function testOwnerCanRemoveMembership() public registered {
         vm.prank(msg.sender);
         factory.removeMembership(address(coconuts));
         assertEq(factory.getMember(address(coconuts)), false);
@@ -76,19 +93,15 @@ contract DealFactoryTest is Test {
         assertEq(address(coconuts).balance, STARTING_BALANCE);
     }
 
-    // todo can't remove member if has pending proposals
+    // todo owner can't remove member if has pending proposals
+    function testOwnerCantRemoveMembership() public registeredAndSubmitted {
+        vm.prank(msg.sender);
+        vm.expectRevert();
+        factory.removeMembership(address(coconuts));
+    }
 
     /*** SUBMIT PROPOSAL */
-    function testCanSubmitProposal() public registerMember {
-        vm.prank(coconuts);
-        factory.submitProposal(
-            TEST_DESCRIPTION,
-            TEST_INVIDIDUAL_FEE,
-            TEST_NB_OF_CUSTOMERS,
-            TEST_IMG_URL,
-            TEST_INTERNAL_ID
-        );
-        assertEq(factory.getNbOfPendingProposals(address(coconuts)), 1);
+    function testCanSubmitProposal() public registeredAndSubmitted {
         assertEq(
             factory.getPendingProposal(0, address(coconuts)).internalId,
             TEST_INTERNAL_ID
@@ -96,51 +109,23 @@ contract DealFactoryTest is Test {
     }
 
     /*** CANCEL PROPOSAL*/
-    //
+    // owner car cancel pending
+
+    // member can cancel pending.
 
     /*** DEPLOY PROPOSAL*/
-    function testOWnerDeployedProperly() public registerMember {
-        vm.prank(coconuts);
-        factory.submitProposal(
-            TEST_DESCRIPTION,
-            TEST_INVIDIDUAL_FEE,
-            TEST_NB_OF_CUSTOMERS,
-            TEST_IMG_URL,
-            TEST_INTERNAL_ID
-        );
-        assertEq(factory.getNbOfPendingProposals(address(coconuts)), 1);
+    function testOWnerDeployedProperly() public registeredAndSubmitted {
         vm.prank(msg.sender);
-
         factory.approveAndDeployProposal(address(coconuts), TEST_INTERNAL_ID);
-        DeployedMinimal memory deployedInfo = factory.getDeployed(
+        DeployedMinimal memory bulkDealInfo = factory.getDeployed(
             address(coconuts),
             0
         );
-        assertEq(deployedInfo.deployed != address(0), true);
+        assertEq(bulkDealInfo.deployed != address(0), true);
         assertEq(factory.getNbOfPendingProposals(address(coconuts)), 0);
-        BulkDeal bulkDeal = BulkDeal(deployedInfo.deployed);
+        BulkDeal bulkDeal = BulkDeal(bulkDealInfo.deployed);
         assertEq(bulkDeal.getInternalId(), TEST_INTERNAL_ID);
     }
 
     // only owner can deploy proposal
-
-    //
-    //function testAddMemberToArrayOfMembers() public {
-    //   vm.startPrank(alice);
-    //     fundMe.fund{value: SEND_VALUE}();
-    //     vm.stopPrank();
-
-    //     address funder = fundMe.getFunder(alice);
-    //     assertEq(funder, alice);
-    // }
-
-    // can submit deal
-    // function testSubmitProposal() public {
-    //     vm.prank(alice);
-    //     fundMe.fund{value: SEND_VALUE}();
-    //     uint256 amountFunded = fundMe.getAddressToAmountFunded(alice);
-    //     assertEq(amountFunded, SEND_VALUE);
-    // }
-
-    // function onlySenderOrOwnerCanCancelProposal
 }

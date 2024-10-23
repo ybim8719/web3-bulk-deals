@@ -1,9 +1,6 @@
 [x] Achieve contracts logic
     [x] for Factory 
     [ ] for BulkDeal
-[ ] Test functions on remix
-    [ ] for Factory 
-    [ ] for BulkDeal
 
 [x] Create deployment Script (factory)
     [x] for Factory 
@@ -27,7 +24,7 @@
     [ ] for Factory 
     [ ] for BulkDeal
 
-[ ] Add chainlink price feed EUR/ETH (double price feed bro)
+[x] Add chainlink price feed 
 
 [x] Add price converter library 
 
