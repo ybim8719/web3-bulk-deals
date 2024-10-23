@@ -51,4 +51,26 @@ contract BulkDeal {
     function getInternalId() public view returns (uint256) {
         return s_deal.internalId;
     }
+
+    function getDeal()
+        public
+        view
+        returns (
+            string memory goodsDescription,
+            uint256 individualFeeInWei,
+            uint256 requiredNbOfCustomers,
+            address seller,
+            string memory imageUrl,
+            uint256 internalId
+        )
+    {
+        return (
+            s_deal.goodsDescription,
+            s_deal.individualFeeInWei,
+            s_deal.requiredNbOfCustomers,
+            s_deal.seller,
+            s_deal.imageUrl,
+            s_deal.internalId
+        );
+    }
 }

@@ -27,6 +27,7 @@ contract DealFactoryTest is Test {
         vm.deal(coconuts, STARTING_BALANCE);
     }
 
+    /*** MODIFIERS */
     modifier registered() {
         vm.prank(coconuts);
         factory.applyForMembership{value: SEND_VALUE}();
@@ -93,7 +94,6 @@ contract DealFactoryTest is Test {
         assertEq(address(coconuts).balance, STARTING_BALANCE);
     }
 
-    // todo owner can't remove member if has pending proposals
     function testOwnerCantRemoveMembership() public registeredAndSubmitted {
         vm.prank(msg.sender);
         vm.expectRevert();
@@ -109,9 +109,20 @@ contract DealFactoryTest is Test {
     }
 
     /*** CANCEL PROPOSAL*/
-    // owner car cancel pending
+    function testMemberCancelHisProposal() public registeredAndSubmitted {
+        vm.prank(coconuts);
+        factory.cancelPendingProposal(TEST_INTERNAL_ID);
+        assertEq(factory.getNbOfPendingProposals(address(coconuts)), 0);
+    }
 
-    // member can cancel pending.
+    function testOwnerCanCancelMembersProposal() public registeredAndSubmitted {
+        vm.prank(msg.sender);
+        factory.ownerCancelsPendingProposal(
+            address(coconuts),
+            TEST_INTERNAL_ID
+        );
+        assertEq(factory.getNbOfPendingProposals(address(coconuts)), 0);
+    }
 
     /*** DEPLOY PROPOSAL*/
     function testOWnerDeployedProperly() public registeredAndSubmitted {
@@ -127,5 +138,9 @@ contract DealFactoryTest is Test {
         assertEq(bulkDeal.getInternalId(), TEST_INTERNAL_ID);
     }
 
-    // only owner can deploy proposal
+    function testNonOwnerCantDeployProposal() public {
+        vm.prank(coconuts);
+        vm.expectRevert();
+        factory.approveAndDeployProposal(address(coconuts), TEST_INTERNAL_ID);
+    }
 }
