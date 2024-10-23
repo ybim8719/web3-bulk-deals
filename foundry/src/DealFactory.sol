@@ -57,7 +57,7 @@ contract DealFactory {
         i_priceFeed = AggregatorV3Interface(priceFeed);
     }
 
-    /*** modifiers */
+    /*** MODIFIERS */
     modifier ownerOnly() {
         if (msg.sender != i_owner) {
             revert DealFactory__OwnerOnly();
@@ -72,7 +72,6 @@ contract DealFactory {
         _;
     }
 
-    // IS OK / Any address could join the membership by paying a membership fee
     function applyForMembership() public payable {
         if (msg.value != MEMBERSHIP_FEE) {
             revert DealFactory__InvalidMembershipFeeSent({
@@ -90,7 +89,6 @@ contract DealFactory {
 
     // MAKE the pending proposal payable ?
 
-    // IS OK /
     function removeMembership(address memberToRemove) public ownerOnly {
         if (s_members[memberToRemove] == false) {
             revert DealFactory__InexistantMember(memberToRemove);
@@ -112,7 +110,6 @@ contract DealFactory {
         s_members[memberToRemove] = false;
     }
 
-    // IS OK
     function submitProposal(
         string memory _goodsDescription,
         uint256 _individualFeeInUsd,
@@ -155,7 +152,15 @@ contract DealFactory {
         s_pendingProposals[msg.sender].push(deal);
     }
 
-    // member can remove his previous proposal
+    function ownerCancelPendingProposal(
+        address member,
+        uint256 internalId
+    ) public ownerOnly {
+        // todo find correct location with address and id
+        // remove it.
+        // emit an event.
+    }
+
     function cancelPendingProposal(uint256 _internalId) public memberOnly {
         if (s_pendingProposals[msg.sender].length == 0) {
             revert DealFactory__ProposalNotFound(_internalId, msg.sender);
@@ -171,16 +176,20 @@ contract DealFactory {
         deletePendingProposal(indexToRemove, msg.sender);
     }
 
-    // acceptance and deployment of a proposal by owner
     function approveAndDeployProposal(
         address _seller,
         uint256 _internalId
-    ) public ownerOnly {
+    ) public ownerOnly returns (DeployedMinimal memory) {
         if (s_pendingProposals[_seller].length == 0) {
             revert DealFactory__ProposalNotFound(_internalId, _seller);
         }
         // find proposal and deploy it
         uint256 indexToRemove = MAX_PENDING_PROPOSALS_PER_MEMBER;
+        DeployedMinimal memory minimal = DeployedMinimal({
+            deployed: address(0),
+            internalId: 0
+        });
+
         for (uint256 i = 0; i < s_pendingProposals[_seller].length; i++) {
             if (s_pendingProposals[_seller][i].internalId == _internalId) {
                 DealProposalToValidate memory deal = s_pendingProposals[
@@ -203,11 +212,8 @@ contract DealFactory {
                 });
                 BulkDeal deployedDeal = new BulkDeal(enrichedDeal);
                 // add to deployed list
-
-                DeployedMinimal memory minimal = DeployedMinimal({
-                    deployed: address(deployedDeal),
-                    internalId: _internalId
-                });
+                minimal.deployed = address(deployedDeal);
+                minimal.internalId = _internalId;
                 s_deployedProposals[_seller].push(minimal);
                 emit ProposalPublished(
                     address(deployedDeal),
@@ -221,7 +227,8 @@ contract DealFactory {
             revert DealFactory__ProposalNotFound(_internalId, _seller);
         }
         // remove from pending list
-        deletePendingProposal(indexToRemove, msg.sender);
+        deletePendingProposal(indexToRemove, _seller);
+        return minimal;
     }
 
     function deletePendingProposal(
@@ -229,20 +236,22 @@ contract DealFactory {
         address _member
     ) internal {
         if (_indexToRemove < MAX_PENDING_PROPOSALS_PER_MEMBER) {
-            for (
-                uint256 i = _indexToRemove;
-                i < s_pendingProposals[_member].length - 1;
-                i++
-            ) {
-                s_pendingProposals[_member][i] = s_pendingProposals[_member][
-                    i + 1
-                ];
+            if (s_pendingProposals[_member].length > 0) {
+                for (
+                    uint256 i = _indexToRemove;
+                    i < s_pendingProposals[_member].length - 1;
+                    i++
+                ) {
+                    s_pendingProposals[_member][i] = s_pendingProposals[
+                        _member
+                    ][i + 1];
+                }
+                s_pendingProposals[_member].pop();
             }
-            s_pendingProposals[_member].pop();
         }
     }
 
-    /*** getters*/
+    /*** GETTERS */
     function getMembershipFee() public pure returns (uint256) {
         return MEMBERSHIP_FEE;
     }

@@ -48,5 +48,7 @@ contract BulkDeal {
         return i_owner;
     }
 
-    function getDeal() public view returns (DeployedDeal memory) {}
+    function getInternalId() public view returns (uint256) {
+        return s_deal.internalId;
+    }
 }
