@@ -7,7 +7,10 @@ import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interf
 import {PriceConverter} from "./utils/PriceConverter.sol";
 
 /**
- *
+ * @title A sample Raffle Contract
+ * @author moi
+ * @notice This contract is for creating a sample raffle
+ * @dev It implements Chainlink VRFv2 and Chainlink Automation
  */
 contract DealFactory {
     using PriceConverter for uint256;

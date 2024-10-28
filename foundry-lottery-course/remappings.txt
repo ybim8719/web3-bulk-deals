@@ -1,2 +1,0 @@
-chainlink/=lib/chainlink/
-forge-std/=lib/forge-std/src/
