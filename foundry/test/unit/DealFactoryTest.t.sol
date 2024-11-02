@@ -19,7 +19,7 @@ contract DealFactoryTest is Test {
     uint256 private constant TEST_INVIDIDUAL_FEE = 100;
     uint256 private constant TEST_NB_OF_CUSTOMERS = 5;
     string private constant TEST_IMG_URL = "www.eggs-url/1";
-    uint256 private constant TEST_INTERNAL_ID = 11111100;
+    string private constant TEST_INTERNAL_ID = "BBB111110";
 
     function setUp() external {
         DeployDealFactory deployFactory = new DeployDealFactory();

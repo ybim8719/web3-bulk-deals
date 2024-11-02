@@ -48,7 +48,7 @@ contract BulkDeal {
         return i_owner;
     }
 
-    function getInternalId() public view returns (uint256) {
+    function getInternalId() public view returns (string memory) {
         return s_deal.internalId;
     }
 
@@ -61,7 +61,7 @@ contract BulkDeal {
             uint256 requiredNbOfCustomers,
             address seller,
             string memory imageUrl,
-            uint256 internalId
+            string memory internalId
         )
     {
         return (

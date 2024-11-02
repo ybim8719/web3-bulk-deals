@@ -5,9 +5,11 @@
 [x] Create deployment Script (factory)
     [x] for Factory 
     [ ] for BulkDeal
+    
 [x] Deploy factory on local anvil and cast methods online 
     [x] for Factory 
     [ ] for BulkDeal
+
 [ ] Complete .env file 
 
 [ ] use cast wallet to store metamask private key

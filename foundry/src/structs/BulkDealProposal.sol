@@ -7,7 +7,7 @@ struct DealProposalToValidate {
     uint256 individualFeeInUsd;
     uint256 requiredNbOfCustomers;
     string imageUrl;
-    uint256 internalId;
+    string internalId;
 }
 
 struct DeployedDeal {
@@ -17,10 +17,10 @@ struct DeployedDeal {
     uint256 requiredNbOfCustomers;
     address seller;
     string imageUrl;
-    uint256 internalId;
+    string internalId;
 }
 
 struct DeployedMinimal {
     address deployed;
-    uint256 internalId;
+    string internalId;
 }

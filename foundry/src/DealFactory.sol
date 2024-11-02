@@ -22,15 +22,15 @@ contract DealFactory {
     error DealFactory__CantRemoveOwnerFromMembers();
     error DealFactory__ApplierAlreadyRegistered(address applier);
     error DealFactory__UnsufficientFunds(uint256 contractBalance);
-    error DealFactory__ProposalAlreadySubmitted(uint256 internalId);
+    error DealFactory__ProposalAlreadySubmitted(string internalId);
     error DealFactory__ProposalToCancelWasNotFoundOrAlreadyDeployed(
-        uint256 internalId
+        string internalId
     );
     error DealFactory__InexistantMember(address memberToRemove);
     error DealFactory__MemberHasPendingProposal(address memberToRemove);
-    error DealFactory__ProposalNotFound(uint256 internalId, address seller);
+    error DealFactory__ProposalNotFound(string internalId, address seller);
     error DealFactory__MaxNumberOfProposalReached(
-        uint256 internalId,
+        string internalId,
         address seller
     );
 
@@ -43,9 +43,9 @@ contract DealFactory {
     event ProposalPublished(
         address indexed _newContract,
         address indexed _seller,
-        uint256 _internalId
+        string _internalId
     );
-    event ProposalCancelled(address member, uint256 internalId);
+    event ProposalCancelled(address member, string internalId);
 
     /** * STORAGE */
     AggregatorV3Interface private immutable i_priceFeed;
@@ -122,7 +122,7 @@ contract DealFactory {
         uint256 _individualFeeInUsd,
         uint256 _requiredNbOfCustomers,
         string memory _imageUrl,
-        uint256 _internalId
+        string memory _internalId
     ) public memberOnly {
         if (s_pendingProposals[msg.sender].length > 0) {
             // max num of proposal reached
@@ -141,9 +141,7 @@ contract DealFactory {
                 i < s_pendingProposals[msg.sender].length;
                 i++
             ) {
-                if (
-                    s_pendingProposals[msg.sender][i].internalId == _internalId
-                ) {
+                if (keccak256(abi.encodePacked(s_pendingProposals[msg.sender][i].internalId)) == keccak256(abi.encodePacked(_internalId))) {
                     revert DealFactory__ProposalAlreadySubmitted(_internalId);
                 }
             }
@@ -161,7 +159,7 @@ contract DealFactory {
 
     function ownerCancelsPendingProposal(
         address _member,
-        uint256 _internalId
+        string memory _internalId
     ) public ownerOnly {
         if (s_pendingProposals[_member].length == 0) {
             revert DealFactory__ProposalNotFound(_internalId, _member);
@@ -169,7 +167,7 @@ contract DealFactory {
         findAndDeletePendingProposal(_member, _internalId);
     }
 
-    function cancelPendingProposal(uint256 _internalId) public memberOnly {
+    function cancelPendingProposal(string memory _internalId) public memberOnly {
         if (s_pendingProposals[msg.sender].length == 0) {
             revert DealFactory__ProposalNotFound(_internalId, msg.sender);
         }
@@ -178,13 +176,13 @@ contract DealFactory {
 
     function findAndDeletePendingProposal(
         address _member,
-        uint256 _internalId
+        string memory _internalId
     ) internal {
         // this index is max length of proposals array, it can't be reached
         uint256 indexToRemove = MAX_PENDING_PROPOSALS_PER_MEMBER;
         // find related index in proposals[]
         for (uint256 i = 0; i < s_pendingProposals[_member].length; i++) {
-            if (s_pendingProposals[_member][i].internalId == _internalId) {
+            if (keccak256(abi.encodePacked(s_pendingProposals[_member][i].internalId)) == keccak256(abi.encodePacked(_internalId))) {
                 indexToRemove = i;
             }
         }
@@ -193,7 +191,7 @@ contract DealFactory {
 
     function approveAndDeployProposal(
         address _seller,
-        uint256 _internalId
+        string memory _internalId
     ) public ownerOnly {
         if (s_pendingProposals[_seller].length == 0) {
             revert DealFactory__ProposalNotFound(_internalId, _seller);
@@ -202,7 +200,7 @@ contract DealFactory {
         uint256 indexToRemove = MAX_PENDING_PROPOSALS_PER_MEMBER;
 
         for (uint256 i = 0; i < s_pendingProposals[_seller].length; i++) {
-            if (s_pendingProposals[_seller][i].internalId == _internalId) {
+            if (keccak256(abi.encodePacked(s_pendingProposals[_seller][i].internalId)) == keccak256(abi.encodePacked(_internalId))) {
                 DealProposalToValidate memory deal = s_pendingProposals[
                     _seller
                 ][i];
@@ -246,7 +244,7 @@ contract DealFactory {
     function deletePendingProposal(
         uint256 _indexToRemove,
         address _member,
-        uint256 _internalId
+        string memory _internalId
     ) internal {
         if (_indexToRemove < MAX_PENDING_PROPOSALS_PER_MEMBER) {
             if (s_pendingProposals[_member].length > 0) {
