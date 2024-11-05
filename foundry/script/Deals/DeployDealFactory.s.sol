@@ -2,8 +2,8 @@
 pragma solidity 0.8.19;
 
 import {Script} from "forge-std/Script.sol";
-import {DealFactory} from "../src/DealFactory.sol";
-import {HelperConfig} from "./HelperConfig.s.sol";
+import {DealFactory} from "../../src/Deals/DealFactory.sol";
+import {HelperConfig} from "../HelperConfig.s.sol";
 
 contract DeployDealFactory is Script {
     function run() external returns (DealFactory factory) {

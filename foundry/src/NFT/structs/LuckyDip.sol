@@ -4,17 +4,17 @@ pragma solidity ^0.8.19;
 
 
 struct LuckyDip {
-    string description;
-    uint256 totalPrice;
-    bool available;
-    address buyer;
-    NFTCollection[] collection;
+    string deckDescription;
+    string symbol;
+    string name;
+    uint256 startingBid;
+    uint256 bidStep;
+    address bestBidder;
+    address deployed;
+    NFTSet[] nftCollection;
 }
 
-struct NFTCollection {  
+struct NFTSet {  
     string name;
     string fileName;
 }
-
-
-

@@ -2,7 +2,7 @@
 
 pragma solidity 0.8.19;
 
-import {Script} from "forge-std/Script.sol";
+import {Script, console} from "forge-std/Script.sol";
 import {MockV3Aggregator} from "../test/mocks/MockV3Aggregator.sol";
 
 contract HelperConfig is Script {
@@ -19,6 +19,8 @@ contract HelperConfig is Script {
     }
 
     constructor() {
+        // TODO Remove console.log
+        console.log("chainId = ", block.chainid);
         if (block.chainid == 11155111) {
             activeNetworkConfig = getSepoliaEthConfig();
         } else {

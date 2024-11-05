@@ -2,11 +2,11 @@
 pragma solidity ^0.8.19;
 
 import {Test, console} from "forge-std/Test.sol";
-import {DealFactory} from "../../src/DealFactory.sol";
+import {DealFactory} from "../../src/Deals/DealFactory.sol";
 
-import {BulkDeal} from "../../src/BulkDeal.sol";
-import {DeployDealFactory} from "../../script/DeployDealFactory.s.sol";
-import {DeployedMinimal} from "../../src/structs/BulkDealProposal.sol";
+import {BulkDeal} from "../../src/Deals/BulkDeal.sol";
+import {DeployDealFactory} from "../../script/Deals/DeployDealFactory.s.sol";
+import {DeployedMinimal} from "../../src/Deals/structs/BulkDealProposal.sol";
 
 contract DealFactoryTest is Test {
     DealFactory factory;

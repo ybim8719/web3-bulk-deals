@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
-import {DeployedDeal} from "../src/structs/BulkDealProposal.sol";
+import {DeployedDeal} from "./structs/BulkDealProposal.sol";
 
 contract BulkDeal {
     /**

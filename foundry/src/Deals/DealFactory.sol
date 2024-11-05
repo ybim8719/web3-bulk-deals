@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 import {BulkDeal} from "./BulkDeal.sol";
-import {DealProposalToValidate, DeployedDeal, DeployedMinimal} from "../src/structs/BulkDealProposal.sol";
+import {DealProposalToValidate, DeployedDeal, DeployedMinimal} from "./structs/BulkDealProposal.sol";
 import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
 import {PriceConverter} from "./utils/PriceConverter.sol";
 
