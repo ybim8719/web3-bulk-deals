@@ -87,5 +87,4 @@ contract NFTLuckyDip {
         require(callSuccess, "Call failed");
         s_members[memberToRemove] = false;
     }
-
 }
