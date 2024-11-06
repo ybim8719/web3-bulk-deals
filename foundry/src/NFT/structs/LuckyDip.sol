@@ -16,6 +16,5 @@ struct LuckyDip {
 }
 
 struct NFTSet {
-    string name;
     string fileName;
 }

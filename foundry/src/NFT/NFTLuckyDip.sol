@@ -47,8 +47,9 @@ contract NFTLuckyDip {
         _;
     }
 
-    constructor() {
+    constructor(LuckyDip[] memory luckyDips) {
         i_owner = msg.sender;
+        s_luckyDips = luckyDips;
         // s_members[msg.sender] = true;
     }
     function applyForMembership() public payable {

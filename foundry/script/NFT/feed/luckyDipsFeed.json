@@ -1,0 +1,26 @@
+[
+    {
+        "description": "a nice colletion from JeanMichelJarre",
+        "symbol": "JMJ",
+        "name": "JeanMi",
+        "startingBid": 100000000000000,
+        "bidStep": 10000000000000,
+        "nftCollection": [
+            "image1",
+            "image2"
+        ]
+    },
+    {
+        "description": "a nice collection from Zidane",
+        "symbol": "JMJ",
+        "name": "JeanMi",
+        "startingBid": 200000000000000,
+        "bidStep": 20000000000000,
+        "nftCollection": [
+            "image3",
+            "image4"
+        ]
+    },
+]
+
+
