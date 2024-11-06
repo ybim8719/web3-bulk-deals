@@ -1,7 +1,5 @@
-
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
-
 
 struct LuckyDip {
     string description;
@@ -12,9 +10,10 @@ struct LuckyDip {
     uint256 nextBidStep;
     address bestBidder;
     address deployed;
-    NFTSet[] nftCollection;
+    mapping(uint => NFTSet) nftCollection;
+    uint nftCollectionSize;
 }
 
 struct NFTSet {
-    string fileName;
+    string imageUri;
 }

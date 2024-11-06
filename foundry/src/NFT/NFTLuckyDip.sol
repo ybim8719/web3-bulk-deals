@@ -2,8 +2,7 @@
 
 pragma solidity ^0.8.19;
 
-
-import {LuckyDip} from "./structs/LuckyDip.sol";
+import {LuckyDip, NFTSet} from "./structs/LuckyDip.sol";
 
 contract NFTLuckyDip {
     /** * ERRORS */
@@ -47,11 +46,39 @@ contract NFTLuckyDip {
         _;
     }
 
-    constructor(LuckyDip[] memory luckyDips) {
+    constructor() {
         i_owner = msg.sender;
-        s_luckyDips = luckyDips;
         // s_members[msg.sender] = true;
     }
+
+    function addLuckyDip(
+        string memory _description,
+        string memory _symbol,
+        string memory _name,
+        uint256 _startingBid,
+        uint256 _bidStep,
+        uint256 index,
+        string[] memory imageUris
+    ) public {
+        // require is owner
+
+        // add image URIs
+        LuckyDip storage luckyDip = s_luckyDips[index];
+        luckyDip.description = _description;
+        luckyDip.symbol = _symbol;
+        luckyDip.name = _name;
+        luckyDip.startingBid = _startingBid;
+        luckyDip.bidStep = _bidStep;
+        luckyDip.nextBidStep = 0;
+        luckyDip.bestBidder = address(0);
+        luckyDip.deployed = address(0);
+
+        for (uint256 i = 0; i < imageUris.length; i++) {
+            luckyDip.nftCollection[i] = NFTSet({imageUri: imageUris[i]});
+            luckyDip.nftCollectionSize++;
+        }
+    }
+
     function applyForMembership() public payable {
         if (msg.value != MEMBERSHIP_FEE) {
             revert NFTLuckyDip__InvalidMembershipFeeSent({
