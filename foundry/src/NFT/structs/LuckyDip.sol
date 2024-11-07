@@ -10,10 +10,6 @@ struct LuckyDip {
     uint256 nextBidStep;
     address bestBidder;
     address deployed;
-    mapping(uint => NFTSet) nftCollection;
-    uint nftCollectionSize;
-}
-
-struct NFTSet {
-    string imageUri;
+    uint nftImageUrisSize;
+    string[] nftImageUris;
 }

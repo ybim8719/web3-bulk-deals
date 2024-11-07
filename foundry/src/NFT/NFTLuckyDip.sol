@@ -2,7 +2,7 @@
 
 pragma solidity ^0.8.19;
 
-import {LuckyDip, NFTSet} from "./structs/LuckyDip.sol";
+import {LuckyDip} from "./structs/LuckyDip.sol";
 
 contract NFTLuckyDip {
     /** * ERRORS */
@@ -48,7 +48,6 @@ contract NFTLuckyDip {
 
     constructor() {
         i_owner = msg.sender;
-        // s_members[msg.sender] = true;
     }
 
     function addLuckyDip(
@@ -57,26 +56,21 @@ contract NFTLuckyDip {
         string memory _name,
         uint256 _startingBid,
         uint256 _bidStep,
-        uint256 index,
         string[] memory imageUris
     ) public {
         // require is owner
-
-        // add image URIs
-        LuckyDip storage luckyDip = s_luckyDips[index];
-        luckyDip.description = _description;
-        luckyDip.symbol = _symbol;
-        luckyDip.name = _name;
-        luckyDip.startingBid = _startingBid;
-        luckyDip.bidStep = _bidStep;
-        luckyDip.nextBidStep = 0;
-        luckyDip.bestBidder = address(0);
-        luckyDip.deployed = address(0);
-
-        for (uint256 i = 0; i < imageUris.length; i++) {
-            luckyDip.nftCollection[i] = NFTSet({imageUri: imageUris[i]});
-            luckyDip.nftCollectionSize++;
-        }
+        s_luckyDips.push(LuckyDip(
+            _description,
+            _symbol,
+            _name,
+            _startingBid,
+            _bidStep,
+            0,
+            address(0),
+            address(0),
+            imageUris.length,
+            imageUris
+        ));
     }
 
     function applyForMembership() public payable {
@@ -114,5 +108,18 @@ contract NFTLuckyDip {
         }("");
         require(callSuccess, "Call failed");
         s_members[memberToRemove] = false;
+    }
+
+    /*** GETTERS */
+    function getNbOfLuckyDips() public view returns(uint256) {
+        return s_luckyDips.length;
+    }
+
+    function getLuckyDipNFT(uint256 i, uint256 j) public view returns(string memory) {
+        return s_luckyDips[i].nftImageUris[j];
+    }
+
+    function getLuckyDipNFTLength(uint256 index) public view returns(uint256) {
+        return s_luckyDips[index].nftImageUris.length;
     }
 }

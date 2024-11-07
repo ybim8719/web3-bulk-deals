@@ -3,53 +3,51 @@ pragma solidity 0.8.20;
 
 import {Script, console} from "forge-std/Script.sol";
 import {NFTLuckyDip} from "../../src/NFT/NFTLuckyDip.sol";
-import {LuckyDip, NFTSet} from "../../src/NFT/structs/LuckyDip.sol";
+import {LuckyDip} from "../../src/NFT/structs/LuckyDip.sol";
 import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
 
+
 contract DeployNFTLuckyDip is Script {
-    string constant SVG_PATH = "./images/dynamicNft/";
-    string[] s_tmpPaths;
-    LuckyDip[] s_luckyDips;
+    string constant SVG_PATH = "./img/";
+    string[] s_tmpImageUris;
 
     function run() external returns (NFTLuckyDip luckyDip) {
         vm.startBroadcast();
         luckyDip = new NFTLuckyDip();
         vm.stopBroadcast();
-
-        s_tmpPaths = [
+        s_tmpImageUris = [
             svgToImageURI(
-                vm.readFile(string(abi.encodePacked(SVG_PATH, "image1")))
+                vm.readFile(string(abi.encodePacked(SVG_PATH, "image1.svg")))
             ),
             svgToImageURI(
-                vm.readFile(string(abi.encodePacked(SVG_PATH, "image2")))
+                vm.readFile(string(abi.encodePacked(SVG_PATH, "image2.svg")))
             )
         ];
         luckyDip.addLuckyDip(
-            "a nice colletion from JeanMichelJarre",
+            "a nice collection from JeanMichelJarre",
             "JMJ",
             "Jeanmi",
             1e16,
             1e15,
-            0,
-            s_tmpPaths
+            s_tmpImageUris
         );
-        s_tmpPaths = [
+        s_tmpImageUris = [
             svgToImageURI(
-                vm.readFile(string(abi.encodePacked(SVG_PATH, "image3")))
+                vm.readFile(string(abi.encodePacked(SVG_PATH, "image3.svg")))
             ),
             svgToImageURI(
-                vm.readFile(string(abi.encodePacked(SVG_PATH, "image4")))
+                vm.readFile(string(abi.encodePacked(SVG_PATH, "image4.svg")))
             )
         ];
-        luckyDip.addLuckyDip(
-            "a nice colletion from Zidane",
-            "ZZ",
-            "Zizou",
-            2e16,
-            2e15,
-            1,
-            s_tmpPaths
-        );
+        // luckyDip.addLuckyDip(
+        //     "a nice colletion from Zidane",
+        //     "ZZ",
+        //     "Zizou",
+        //     2e16,
+        //     2e15,
+        //     1,
+        //     s_tmpImageUris
+        // );
 
         return luckyDip;
     }
