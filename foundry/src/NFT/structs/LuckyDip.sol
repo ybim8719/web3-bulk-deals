@@ -2,6 +2,7 @@
 pragma solidity ^0.8.20;
 
 struct LuckyDip {
+    bool isPublished;
     string description;
     string symbol;
     string name;
@@ -12,4 +13,5 @@ struct LuckyDip {
     address deployed;
     uint nftImageUrisSize;
     string[] nftImageUris;
+    // LATER add validaty duration in seconds 
 }

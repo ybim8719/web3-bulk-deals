@@ -34,9 +34,8 @@ contract NftLuckyDipTest is Test {
 
     /*** UNIT TESTS */
     function testLuckyDipWasImported() public view {
-        console.log(luckyDip.getLuckyDipNFTLength(0));
-        console.log(luckyDip.getLuckyDipNFT(0, 0));
-        // assertEq(luckyDip.getLuckyDipNFTLength(0), 2);
+        assertEq(luckyDip.getLuckyDipNFTLength(0), 2);
+        assertEq(luckyDip.getLuckyDipNFTLength(1), 2);
     }
 
     // function testInitializedCorrectly() public view {

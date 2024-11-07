@@ -15,6 +15,12 @@ contract DeployNFTLuckyDip is Script {
         vm.startBroadcast();
         luckyDip = new NFTLuckyDip();
         vm.stopBroadcast();
+        populateLuckyDips(luckyDip);
+
+        return luckyDip;
+    }
+
+    function populateLuckyDips(NFTLuckyDip luckyDip) public {
         s_tmpImageUris = [
             svgToImageURI(
                 vm.readFile(string(abi.encodePacked(SVG_PATH, "image1.svg")))
@@ -24,6 +30,7 @@ contract DeployNFTLuckyDip is Script {
             )
         ];
         luckyDip.addLuckyDip(
+            false,
             "a nice collection from JeanMichelJarre",
             "JMJ",
             "Jeanmi",
@@ -39,20 +46,17 @@ contract DeployNFTLuckyDip is Script {
                 vm.readFile(string(abi.encodePacked(SVG_PATH, "image4.svg")))
             )
         ];
-        // luckyDip.addLuckyDip(
-        //     "a nice colletion from Zidane",
-        //     "ZZ",
-        //     "Zizou",
-        //     2e16,
-        //     2e15,
-        //     1,
-        //     s_tmpImageUris
-        // );
-
-        return luckyDip;
+        luckyDip.addLuckyDip(
+            false,
+            "a nice colletion from Zidane",
+            "ZZ",
+            "Zizou",
+            2e16,
+            2e15,
+            s_tmpImageUris
+        );
     }
 
-    // You could also just upload the raw SVG and have solildity convert it!
     function svgToImageURI(
         string memory svg
     ) public pure returns (string memory) {
