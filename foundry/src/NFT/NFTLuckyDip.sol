@@ -4,9 +4,9 @@ pragma solidity ^0.8.19;
 
 import {LuckyDip} from "./structs/LuckyDip.sol";
 
-// TODO FOR LATER 
+// TODO FOR LATER
 // 1) add an oracle triggering service to execute automatically closure of luckyDipBidden depending on validity time
-// 2) rethink about payable membership... 
+// 2) rethink about payable membership...
 
 contract NFTLuckyDip {
     /** * ERRORS */
@@ -64,19 +64,21 @@ contract NFTLuckyDip {
         string[] memory imageUris
     ) public {
         // TODO require is owner
-        s_luckyDips.push(LuckyDip(
-            _isPublished,
-            _description,
-            _symbol,
-            _name,
-            _startingBid,
-            _bidStep,
-            0,
-            address(0),
-            address(0),
-            imageUris.length,
-            imageUris
-        ));
+        s_luckyDips.push(
+            LuckyDip(
+                _isPublished,
+                _description,
+                _symbol,
+                _name,
+                _startingBid,
+                _bidStep,
+                0,
+                address(0),
+                address(0),
+                imageUris.length,
+                imageUris
+            )
+        );
     }
 
     function applyForMembership() public payable {
@@ -117,43 +119,43 @@ contract NFTLuckyDip {
     }
 
     function bidForLuckyDip(uint256 i) public payable memberOnly {
-        //check if amount sent is ok for winning 
-
-        // cehck conract balance and send back the money to previous bidder. 
-    
-        // update the luckydip info with the new bestBidder address, and the next step to reach 
-
+        //check if amount sent is ok for winning
+        // cehck conract balance and send back the money to previous bidder.
+        // update the luckydip info with the new bestBidder address, and the next step to reach
         // create the event
     }
-
 
     function openLuckyDipBid(uint256 i) public ownerOnly {
         s_luckyDips[i].isPublished = true;
     }
 
     function endLuckyDipBid() public ownerOnly {
-        // for given lucky dip check avialbiliy duration and pick the winner, create the ERC721 contract and mint the related nft 
+        // for given lucky dip check avialbiliy duration and pick the winner, create the ERC721 contract and mint the related nft
         // give the address the full ownership of thjis contract
     }
 
     /*** GETTERS */
-    function getNbOfLuckyDips() public view returns(uint256) {
+    function getNbOfLuckyDips() public view returns (uint256) {
         return s_luckyDips.length;
     }
 
-    function getLuckyDipNFT(uint256 i, uint256 j) public view returns(string memory) {
+    function getLuckyDipNFT(
+        uint256 i,
+        uint256 j
+    ) public view returns (string memory) {
         return s_luckyDips[i].nftImageUris[j];
     }
 
-    function getLuckyDipNFTLength(uint256 i) public view returns(uint256) {
+    function getLuckyDipNFTLength(uint256 i) public view returns (uint256) {
         return s_luckyDips[i].nftImageUris.length;
     }
 
-    function getNextBiddingPriceInWei(uint256 i) public view returns(uint256) {
-        return (s_luckyDips[i].startingBid + (s_luckyDips[i].bidStep * s_luckyDips[i].nextBidStep));
+    function getNextBiddingPriceInWei(uint256 i) public view returns (uint256) {
+        return (s_luckyDips[i].startingBid +
+            (s_luckyDips[i].bidStep * s_luckyDips[i].nextBidStep));
     }
 
-    function getLuckyDipStatus(uint256 i) public view returns(bool) {
+    function getLuckyDipStatus(uint256 i) public view returns (bool) {
         return s_luckyDips[i].isPublished;
     }
 }

@@ -8,7 +8,6 @@ import {LuckyDip} from "../../src/NFT/structs/LuckyDip.sol";
 import {NFTLuckyDip} from "../../src/NFT/NFTLuckyDip.sol";
 import {DeployNFTLuckyDip} from "../../script/NFT/DeployLuckyDip.s.sol";
 
-
 contract NftLuckyDipTest is Test {
     //TODO adding of mocked luckydips should be managed with a json file from test contract
     uint256 private constant SEND_VALUE = 0.01 ether;
@@ -19,7 +18,7 @@ contract NftLuckyDipTest is Test {
 
     function setUp() external {
         DeployNFTLuckyDip deployer = new DeployNFTLuckyDip();
-        luckyDip = deployer.run();
+        luckyDip = deployer.runWithoutPopulating();
         //vm.deal(user1, STARTING_BALANCE);
     }
 

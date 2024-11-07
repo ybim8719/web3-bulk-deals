@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.20;
+pragma solidity ^0.8.19;
 
 struct LuckyDip {
     bool isPublished;
@@ -13,5 +13,5 @@ struct LuckyDip {
     address deployed;
     uint nftImageUrisSize;
     string[] nftImageUris;
-    // LATER add validaty duration in seconds 
+    // LATER add validaty duration in seconds
 }

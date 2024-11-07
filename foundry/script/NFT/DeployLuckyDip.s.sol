@@ -1,22 +1,29 @@
 // SPDX-License-Identifier: MIT
-pragma solidity 0.8.20;
+pragma solidity 0.8.19;
 
 import {Script, console} from "forge-std/Script.sol";
 import {NFTLuckyDip} from "../../src/NFT/NFTLuckyDip.sol";
 import {LuckyDip} from "../../src/NFT/structs/LuckyDip.sol";
 import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
 
-
 contract DeployNFTLuckyDip is Script {
     string constant SVG_PATH = "./img/";
     string[] s_tmpImageUris;
 
     function run() external returns (NFTLuckyDip luckyDip) {
-        vm.startBroadcast();
-        luckyDip = new NFTLuckyDip();
-        vm.stopBroadcast();
+        luckyDip = instantiateNftLuckyDip();
         populateLuckyDips(luckyDip);
+        return luckyDip;
+    }
 
+    function runWithoutPopulating() public returns (NFTLuckyDip luckyDip) {
+        return instantiateNftLuckyDip();
+    }
+
+    function instantiateNftLuckyDip() internal returns (NFTLuckyDip) {
+        vm.startBroadcast();
+        NFTLuckyDip luckyDip = new NFTLuckyDip();
+        vm.stopBroadcast();
         return luckyDip;
     }
 

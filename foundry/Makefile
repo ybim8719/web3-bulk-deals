@@ -27,10 +27,10 @@ format :; forge fmt
 anvil :; anvil -m 'test test' --steps-tracing --block-time 1
 
 deploy:
-	@forge script script/DeployDealFactory.s.sol:DeployDealFactory $(NETWORK_ARGS)
+	@forge script script/Deals/DeployDealFactory.s.sol:DeployDealFactory $(NETWORK_ARGS)
 
 deploy-sepolia:
-	@forge script script/DeployDealFactory.s.sol:DeployDealFactory $(NETWORK_ARGS)
+	@forge script script/Deals/DeployDealFactory.s.sol:DeployDealFactory $(NETWORK_ARGS)
 
 
 NETWORK_ARGS := --rpc-url http://localhost:8545 --private-key $(DEFAULT_ANVIL_KEY) --broadcast
