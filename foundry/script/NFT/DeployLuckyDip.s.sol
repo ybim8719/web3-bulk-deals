@@ -8,11 +8,79 @@ import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
 
 contract DeployNFTLuckyDip is Script {
     string constant SVG_PATH = "./img/";
+    string constant FEED_PATH = "./seed/luckyDipsFeed.json";
     string[] s_tmpImageUris;
 
+
+    struct Apple {
+        string color;
+        uint8 sourness;
+        uint8 sweetness;
+    }
+
+    struct FruitStall {
+        Apple[] apples;
+        string name;
+    }
+
+    struct LyckyDipJson {
+        string description;
+        string symbol;
+        string name;
+    }
+
+    struct LyckyDipsJson {
+        LyckyDipJson[] data;
+    }
+
+    struct Test2 {
+        uint256 bidStep;
+        string startingBid;
+        string description;
+        string symbol;
+        string name;
+    }
+
+    struct Test1 {
+        Test2[] info;
+    }
+
     function run() external returns (NFTLuckyDip luckyDip) {
+        string memory json = vm.readFile("./feed/test1.json");
+        bytes memory data = vm.parseJson(json);
+        // LyckyDipsJson memory luckyDips = abi.decode(data, (LyckyDipsJson));
+
+        // for (uint256 i = 0; i < luckyDips.data.length; i++) {
+        //     LyckyDipJson memory truc = luckyDips.data[i];
+        //     console.log(
+        //         "description: %s, symbol: %d, name: %d",
+        //         truc.description,
+        //         truc.symbol,
+        //         truc.name
+        //     );
+        // }
+        console.log('dddddd');
+        Test1 memory fruitstall = abi.decode(data, (Test1));
+
+        // Logs: Welcome to Fresh Fruit
+        console.log(fruitstall.info[0].bidStep);
+
+        // for (uint256 i = 0; i < fruitstall.apples.length; i++) {
+        //     Apple memory apple = fruitstall.apples[i];
+
+        //     // Logs:
+        //     // Color: Red, Sourness: 3, Sweetness: 7
+        //     // Color: Green, Sourness: 5, Sweetness: 5
+        //     // Color: Yellow, Sourness: 1, Sweetness: 9
+        //     console.log(
+        //         "Color: %s, Sourness: %d, Sweetness: %d",
+        //         apple.color,
+        //         apple.sourness,
+        //         apple.sweetness
+        //     );
+        // }
         luckyDip = instantiateNftLuckyDip();
-        populateLuckyDips(luckyDip);
+        //populateLuckyDips(luckyDip);
         return luckyDip;
     }
 

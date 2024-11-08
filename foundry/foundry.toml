@@ -5,8 +5,9 @@ libs = ["lib"]
 fs_permissions = [
     { access = "read", path = "./img/" },
     { access = "read", path = "./broadcast" },
+    { access = "read", path = "./feed" },
 ]
-
+memory_limit = 67108864
 remappings = [
     '@chainlink/contracts/=lib/chainlink-brownie-contracts/contracts/',
     '@openzeppelin/contracts=lib/openzeppelin-contracts/contracts',

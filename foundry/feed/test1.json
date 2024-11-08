@@ -1,0 +1,39 @@
+{
+    "info": [
+        {
+            "bidStep": 1000000000000000000,
+            "startingBid": 100000000000000,
+            "description": "desc1",
+            "symbol": "JMJ",
+            "name": "JeanMi"
+        },
+        {
+            "bidStep": 1000000000000000000,
+            "startingBid": 100000000000000,
+            "description": "desc2",
+            "symbol": "JMJ",
+            "name": "JeanMi"
+        },
+        {
+            "bidStep": 1000000000000000000,
+            "startingBid": 100000000000000,
+            "description": "desc2",
+            "symbol": "JMJ",
+            "name": "JeanMi"
+        },
+        {
+            "bidStep": 1000000000000000000,
+            "startingBid": 100000000000000,
+            "description": "desc2",
+            "symbol": "JMJ",
+            "name": "JeanMi"
+        },
+        {
+            "bidStep": 1000000000000000000,
+            "startingBid": 100000000000000,
+            "description": "desc2",
+            "symbol": "JMJ",
+            "name": "JeanMi"
+        }
+    ]
+}
