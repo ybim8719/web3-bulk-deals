@@ -6,10 +6,26 @@ import {NFTLuckyDip} from "../../src/NFT/NFTLuckyDip.sol";
 import {LuckyDip} from "../../src/NFT/structs/LuckyDip.sol";
 import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
 
+/**
+ * @title
+ * @author
+ * @notice WARNING, hardcoded json files represent the luckydips dedicated to the future bids. For any customization of these data, please stricty respect
+ * the alphabetical order of the keys inside the json since it's a particularity of vm.parsejson()
+ * https://book.getfoundry.sh/cheatcodes/parse-json
+ */
 contract DeployNFTLuckyDip is Script {
-    string constant SVG_PATH = "./img/";
+    string constant SVG_FOLDER_PATH = "./img/";
     string[] s_tmpImageUris;
-    string[] luckyDipsFeed = ["./feed/lucky-dip1.json", "./feed/lucky-dip2.json", "./feed/lucky-dip3.json", "./feed/lucky-dip4.json"];
+
+    // Will feed the contract
+    string[] luckyDipsFeed = [
+        "./feed/lucky-dip1.json",
+        "./feed/lucky-dip2.json",
+        "./feed/lucky-dip3.json",
+        "./feed/lucky-dip4.json"
+    ];
+    string[] mockedLuckyDipsFeed = ["./feed/mocked-luckydip1.json"];
+
     error NftCollectionEmpty();
     struct LuckyDipJson {
         uint256 bidStep;
@@ -19,15 +35,17 @@ contract DeployNFTLuckyDip is Script {
         uint256 startingBid;
         string symbol;
     }
-  
+
     function run() external returns (NFTLuckyDip luckyDip) {
         luckyDip = instantiateNftLuckyDip();
         populateLuckyDips(luckyDip);
         return luckyDip;
     }
 
-    function runWithoutPopulating() public returns (NFTLuckyDip luckyDip) {
-        return instantiateNftLuckyDip();
+    function runMocked() external returns (NFTLuckyDip luckyDip) {
+        luckyDip = instantiateNftLuckyDip();
+        populateWithMockedLuckyDips(luckyDip);
+        return luckyDip;
     }
 
     function instantiateNftLuckyDip() internal returns (NFTLuckyDip) {
@@ -38,25 +56,72 @@ contract DeployNFTLuckyDip is Script {
     }
 
     function populateLuckyDips(NFTLuckyDip luckyDip) public {
-        // string[4] memory FEEDS = ["./feed/lucky-dip1.json", "./feed/lucky-dip2.json", "./feed/lucky-dip3.json", "./feed/lucky-dip4.json"];
-
         for (uint256 i = 0; i < luckyDipsFeed.length; i++) {
             string memory json = vm.readFile(luckyDipsFeed[i]);
             bytes memory data = vm.parseJson(json);
-            LuckyDipJson memory luckyDipToAdd = abi.decode(data, (LuckyDipJson));
+            LuckyDipJson memory luckyDipToAdd = abi.decode(
+                data,
+                (LuckyDipJson)
+            );
             if (luckyDipToAdd.nftCollection.length == 0) {
                 revert NftCollectionEmpty();
             }
-            s_tmpImageUris = new string [](0);
+            s_tmpImageUris = new string[](0);
             for (uint256 j = 0; j < luckyDipToAdd.nftCollection.length; j++) {
-                // set encoded svg 
+                // set encoded svg
                 s_tmpImageUris.push(
                     svgToImageURI(
-                        vm.readFile(string(abi.encodePacked(SVG_PATH, luckyDipToAdd.nftCollection[j])))
+                        vm.readFile(
+                            string(
+                                abi.encodePacked(
+                                    SVG_FOLDER_PATH,
+                                    luckyDipToAdd.nftCollection[j]
+                                )
+                            )
+                        )
                     )
                 );
             }
-        
+
+            luckyDip.addLuckyDip(
+                luckyDipToAdd.description,
+                luckyDipToAdd.symbol,
+                luckyDipToAdd.name,
+                luckyDipToAdd.startingBid,
+                luckyDipToAdd.bidStep,
+                s_tmpImageUris
+            );
+        }
+    }
+
+    function populateWithMockedLuckyDips(NFTLuckyDip luckyDip) public {
+        for (uint256 i = 0; i < mockedLuckyDipsFeed.length; i++) {
+            string memory json = vm.readFile(mockedLuckyDipsFeed[i]);
+            bytes memory data = vm.parseJson(json);
+            LuckyDipJson memory luckyDipToAdd = abi.decode(
+                data,
+                (LuckyDipJson)
+            );
+            if (luckyDipToAdd.nftCollection.length == 0) {
+                revert NftCollectionEmpty();
+            }
+            s_tmpImageUris = new string[](0);
+            for (uint256 j = 0; j < luckyDipToAdd.nftCollection.length; j++) {
+                // set encoded svg
+                s_tmpImageUris.push(
+                    svgToImageURI(
+                        vm.readFile(
+                            string(
+                                abi.encodePacked(
+                                    SVG_FOLDER_PATH,
+                                    luckyDipToAdd.nftCollection[j]
+                                )
+                            )
+                        )
+                    )
+                );
+            }
+
             luckyDip.addLuckyDip(
                 luckyDipToAdd.description,
                 luckyDipToAdd.symbol,
