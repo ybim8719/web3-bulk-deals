@@ -1,15 +1,16 @@
 {
     "bidStep": 100000000000000,
-    "description": "a nice colletion from JeanMichelJarre",
+    "description": "a nice colletion from Jean Michel Baskaize",
     "name": "JeanMi",
     "nftCollection": [
-        "medical/image1.svg",
-        "medical/image2.svg",
-        "medical/image3.svg",
-        "medical/image4.svg",
-        "medical/image5.svg",
-        "medical/image6.svg"
+        "baskaize/image1.svg",
+        "baskaize/image2.svg",
+        "baskaize/image3.svg",
+        "baskaize/image4.svg",
+        "baskaize/image5.svg",
+        "baskaize/image6.svg",
+        "baskaize/image7.svg"
     ],
     "startingBid": 100000000000000,
-    "symbol": "JMJ"
+    "symbol": "JMB"
 }

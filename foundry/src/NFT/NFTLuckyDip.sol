@@ -55,7 +55,6 @@ contract NFTLuckyDip {
     }
 
     function addLuckyDip(
-        bool _isPublished,
         string memory _description,
         string memory _symbol,
         string memory _name,
@@ -66,7 +65,7 @@ contract NFTLuckyDip {
         // TODO require is owner
         s_luckyDips.push(
             LuckyDip(
-                _isPublished,
+                false,
                 _description,
                 _symbol,
                 _name,

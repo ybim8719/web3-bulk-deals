@@ -8,9 +8,10 @@ import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
 
 contract DeployNFTLuckyDip is Script {
     string constant SVG_PATH = "./img/";
-    string constant FEED_PATH = "./seed/luckyDipsFeed.json";
     string[] s_tmpImageUris;
-    struct LyckyDipJson {
+    string[] luckyDipsFeed = ["./feed/lucky-dip1.json", "./feed/lucky-dip2.json", "./feed/lucky-dip3.json", "./feed/lucky-dip4.json"];
+    error NftCollectionEmpty();
+    struct LuckyDipJson {
         uint256 bidStep;
         string description;
         string name;
@@ -20,39 +21,8 @@ contract DeployNFTLuckyDip is Script {
     }
   
     function run() external returns (NFTLuckyDip luckyDip) {
-        string memory json = vm.readFile("./feed/test1.json");
-        bytes memory data = vm.parseJson(json);
-        LyckyDipJson memory luckyDips = abi.decode(data, (LyckyDipJson));
-
-        // for (uint256 i = 0; i < luckyDips.data.length; i++) {
-        //     LyckyDipJson memory truc = luckyDips.data[i];
-        //     console.log(
-        //         "description: %s, symbol: %d, name: %d",
-        //         truc.description,
-        //         truc.symbol,
-        //         truc.name
-        //     );
-        // }
-
-        // Logs: Welcome to Fresh Fruit
-        console.log(luckyDips.nftCollection[0]);
-
-        // for (uint256 i = 0; i < fruitstall.apples.length; i++) {
-        //     Apple memory apple = fruitstall.apples[i];
-
-        //     // Logs:
-        //     // Color: Red, Sourness: 3, Sweetness: 7
-        //     // Color: Green, Sourness: 5, Sweetness: 5
-        //     // Color: Yellow, Sourness: 1, Sweetness: 9
-        //     console.log(
-        //         "Color: %s, Sourness: %d, Sweetness: %d",
-        //         apple.color,
-        //         apple.sourness,
-        //         apple.sweetness
-        //     );
-        // }
         luckyDip = instantiateNftLuckyDip();
-        //populateLuckyDips(luckyDip);
+        populateLuckyDips(luckyDip);
         return luckyDip;
     }
 
@@ -68,40 +38,34 @@ contract DeployNFTLuckyDip is Script {
     }
 
     function populateLuckyDips(NFTLuckyDip luckyDip) public {
-        s_tmpImageUris = [
-            svgToImageURI(
-                vm.readFile(string(abi.encodePacked(SVG_PATH, "image1.svg")))
-            ),
-            svgToImageURI(
-                vm.readFile(string(abi.encodePacked(SVG_PATH, "image2.svg")))
-            )
-        ];
-        luckyDip.addLuckyDip(
-            false,
-            "a nice collection from JeanMichelJarre",
-            "JMJ",
-            "Jeanmi",
-            1e16,
-            1e15,
-            s_tmpImageUris
-        );
-        s_tmpImageUris = [
-            svgToImageURI(
-                vm.readFile(string(abi.encodePacked(SVG_PATH, "image3.svg")))
-            ),
-            svgToImageURI(
-                vm.readFile(string(abi.encodePacked(SVG_PATH, "image4.svg")))
-            )
-        ];
-        luckyDip.addLuckyDip(
-            false,
-            "a nice colletion from Zidane",
-            "ZZ",
-            "Zizou",
-            2e16,
-            2e15,
-            s_tmpImageUris
-        );
+        // string[4] memory FEEDS = ["./feed/lucky-dip1.json", "./feed/lucky-dip2.json", "./feed/lucky-dip3.json", "./feed/lucky-dip4.json"];
+
+        for (uint256 i = 0; i < luckyDipsFeed.length; i++) {
+            string memory json = vm.readFile(luckyDipsFeed[i]);
+            bytes memory data = vm.parseJson(json);
+            LuckyDipJson memory luckyDipToAdd = abi.decode(data, (LuckyDipJson));
+            if (luckyDipToAdd.nftCollection.length == 0) {
+                revert NftCollectionEmpty();
+            }
+            s_tmpImageUris = new string [](0);
+            for (uint256 j = 0; j < luckyDipToAdd.nftCollection.length; j++) {
+                // set encoded svg 
+                s_tmpImageUris.push(
+                    svgToImageURI(
+                        vm.readFile(string(abi.encodePacked(SVG_PATH, luckyDipToAdd.nftCollection[j])))
+                    )
+                );
+            }
+        
+            luckyDip.addLuckyDip(
+                luckyDipToAdd.description,
+                luckyDipToAdd.symbol,
+                luckyDipToAdd.name,
+                luckyDipToAdd.startingBid,
+                luckyDipToAdd.bidStep,
+                s_tmpImageUris
+            );
+        }
     }
 
     function svgToImageURI(

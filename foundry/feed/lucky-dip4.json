@@ -1,15 +1,17 @@
 {
     "bidStep": 100000000000000,
-    "description": "a nice colletion from JeanMichelJarre",
-    "name": "JeanMi",
+    "description": "a nice colletion from Pussel",
+    "name": "Pussel",
     "nftCollection": [
-        "medical/image1.svg",
-        "medical/image2.svg",
-        "medical/image3.svg",
-        "medical/image4.svg",
-        "medical/image5.svg",
-        "medical/image6.svg"
+        "pussel/image1.svg",
+        "pussel/image2.svg",
+        "pussel/image3.svg",
+        "pussel/image4.svg",
+        "pussel/image5.svg",
+        "pussel/image6.svg",
+        "pussel/image7.svg",
+        "pussel/image8.svg"
     ],
     "startingBid": 100000000000000,
-    "symbol": "JMJ"
+    "symbol": "PPP"
 }
