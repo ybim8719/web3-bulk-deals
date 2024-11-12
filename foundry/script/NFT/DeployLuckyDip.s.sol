@@ -14,7 +14,7 @@ import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
  * https://book.getfoundry.sh/cheatcodes/parse-json
  */
 contract DeployNFTLuckyDip is Script {
-    string constant SVG_FOLDER_PATH = "./img/";
+    string constant SVG_FOLDER_PATH = "./feed/img/";
     string[] s_tmpImageUris;
 
     // Will feed the contract
@@ -68,7 +68,7 @@ contract DeployNFTLuckyDip is Script {
             }
             s_tmpImageUris = new string[](0);
             for (uint256 j = 0; j < luckyDipToAdd.nftCollection.length; j++) {
-                // set encoded svg
+                // set encoded svg and store temporaly
                 s_tmpImageUris.push(
                     svgToImageURI(
                         vm.readFile(

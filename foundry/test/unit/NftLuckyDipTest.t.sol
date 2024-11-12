@@ -27,13 +27,7 @@ contract NftLuckyDipTest is Test {
     }
 
     /*** MODIFIERS */
-    modifier registered() {
-        vm.prank(user1);
-        luckyDip.applyForMembership{value: SEND_VALUE}();
-        assert(address(luckyDip).balance == SEND_VALUE);
-        // assertEq(luckyDip.getMember(address(user1)), true);
-        _;
-    }
+
 
     /*** UNIT TESTS */
     function testLuckyDipAddingWorks() public view {

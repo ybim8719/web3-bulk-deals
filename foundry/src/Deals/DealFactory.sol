@@ -4,12 +4,16 @@ pragma solidity ^0.8.19;
 import {BulkDeal} from "./BulkDeal.sol";
 import {DealProposalToValidate, DeployedDeal, DeployedMinimal} from "./structs/BulkDealProposal.sol";
 import {AggregatorV3Interface} from "@chainlink/contracts/src/v0.8/shared/interfaces/AggregatorV3Interface.sol";
-import {PriceConverter} from "./utils/PriceConverter.sol";
+import {PriceConverter} from "../library/PriceConverter.sol";
 
 /**
- * @title A sample Raffle Contract
- * @author moi
- * @notice This contract is for creating a sample raffle
+ * @title DealFactory
+ * @author ybim
+ * @notice as a visitor, you'll need to apply membership in order to proposal commercial deals to the owner
+    Dès lors, vous pourrez:
+    - soumettre une offre de vente groupée à la communauté 
+    - participer à un achat groupé 
+    L'administrateur aura en charge les inscriptions et les règlements de celles-ci, et de valider ou refuser les propositions de vente et de les publier. 
  * @dev It implements Chainlink VRFv2 and Chainlink Automation
  */
 contract DealFactory {
@@ -315,7 +319,7 @@ contract DealFactory {
     function getMember(address member) public view returns (bool) {
         return s_members[member];
     }
-
+    // TODO later
     fallback() external payable {}
 
     receive() external payable {}
