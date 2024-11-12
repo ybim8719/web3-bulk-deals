@@ -116,7 +116,7 @@ contract NFTLuckyDip {
         return s_luckyDips[i].nftImageUris.length;
     }
 
-        function getStartingBid(uint256 i) public view returns (uint256) {
+    function getStartingBid(uint256 i) public view returns (uint256) {
         return s_luckyDips[i].startingBid;
     }
 
@@ -127,5 +127,9 @@ contract NFTLuckyDip {
 
     function getLuckyDipStatus(uint256 i) public view returns (bool) {
         return s_luckyDips[i].isPublished;
+    }
+
+    function getOwner() public virtual returns (address) {
+        return i_owner;
     }
 }

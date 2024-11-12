@@ -37,12 +37,19 @@ contract DeployNFTLuckyDip is Script {
     }
 
     function run() external returns (NFTLuckyDip luckyDip) {
-        luckyDip = instantiateNftLuckyDip();
+        console.log("in script msg.sender is ", msg.sender);
+        console.log("in script address (this) is ", address(this));
+        // luckyDip = instantiateNftLuckyDip();
+        vm.startBroadcast();
+        luckyDip = new NFTLuckyDip();
+        vm.stopBroadcast();
         populateLuckyDips(luckyDip);
         return luckyDip;
     }
 
     function runMocked() external returns (NFTLuckyDip luckyDip) {
+        console.log("in script msg.sender is ", msg.sender);
+        console.log("in script address (this) is ", address(this));
         luckyDip = instantiateNftLuckyDip();
         populateWithMockedLuckyDips(luckyDip);
         return luckyDip;
@@ -52,6 +59,8 @@ contract DeployNFTLuckyDip is Script {
         vm.startBroadcast();
         NFTLuckyDip luckyDip = new NFTLuckyDip();
         vm.stopBroadcast();
+        vm.prank(msg.sender);
+        console.log(luckyDip.getOwner(), " onwer is !!!! ");
         return luckyDip;
     }
 

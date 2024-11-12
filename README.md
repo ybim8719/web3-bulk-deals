@@ -1,9 +1,14 @@
 
 # ABOUT
 
-Is a pet project handled with foundry and react, I started during my learning of solidity/ 
+This repo is a personal project that I've developed over the course of my solidity apprenticeship, integrating notions I've acquired along the way (chainlink, openzeppelin, ERC721, ERC20, etc...). 
 
-L'application permettra à des utilisateurs (clients, particuliers et grossistes) de se regrouper auprès d'opération d'achat groupés express.
+You should therefore consider this project as a sandbox, even though the applications function normally and integrate business logic.  
+
+To date, two applications have been implemented: 
+1) **BulkDealFactory** is a contract that enables accounts to offer wholesale sales of goods of all kinds at discounted prices.
+
+2) **NFTLuckyDip** is an auction market for surprise folders containing a series of NFTs created by artists. The works are revealed only when the auction is completed via the deployment of an ERC 721 contract.
 
 
 ## Getting Started
@@ -13,40 +18,73 @@ L'application permettra à des utilisateurs (clients, particuliers et grossistes
 3. install npm 
 
 
-3. Run the following command to compile the contract:
+4. Run the following command to compile the contract:
 
 ```bash
 cd foundry
 forge build
 ```
 
-4. Run the following command to deploy the contract to a test network:
+5. Launch the unit tests :
 
 ```bash
-forge create
+forge test
 ```
 
-5. Interact with the contract using Forge's interactive console.
+
+## NFTLuckyDip (deploy)
+
+### Deployment on Anvil 
+
+1. run Anvil (on a separate terminal): 
+
+```bash 
+make anvil
+``` 
+
+2. Run the following command to deploy the contract to a test network:
+
+```bash
+forge script .....
+```
+
+3. Interact with the contract using Cast.
 
 ```bash
 forge console
 ```
 
+4. Add Anvil network to metamask 
+
+
+
+### More about feeding 
+
+
+
+
+## BulkDealFactory (deploy)
+
+1. test :
+
+```bash
+forge test
+```
+
+1. Run the following command to deploy the contract to a test network:
+
+```bash
+forge create
+```
+
+2. Interact with the contract using Forge's interactive console.
+
+```bash
+forge console
+```
+
+
+
 ## More about tests and deployments
 
-
-## More about features
-
-L'idée est la suivante, en tant que user, vous devrez vous inscrire auprès de la plateforme en renseignant: 
-
-- addresse 
-- bla bla 
-
-Dès lors, vous pourrez:
-
-- soumettre une offre de vente groupée à la communauté 
-- participer à un achat groupé 
-
-L'administrateur aura en charge les inscriptions et les règlements de celles-ci, et de valider ou refuser les propositions de vente et de les publier. 
-
-
+TODO : 

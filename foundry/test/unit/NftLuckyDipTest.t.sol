@@ -23,6 +23,7 @@ contract NftLuckyDipTest is Test {
     NFTLuckyDip public luckyDip;
 
     function setUp() external {
+        console.log('address of TEST is ', address(this));
         DeployNFTLuckyDip deployer = new DeployNFTLuckyDip();
         luckyDip = deployer.runMocked();
         vm.deal(user1, STARTING_BALANCE);
