@@ -1,6 +1,6 @@
 {
-    "bidStep": 100000000000000,
-    "description": "a nice colletion from Jean Michel Baskaize",
+    "bidStep": 250000000000000,
+    "description": "Jean Michel Baskaize is an african artist who exposed in NYC gallery ",
     "name": "JeanMi",
     "nftCollection": [
         "baskaize/image1.svg",
@@ -11,6 +11,6 @@
         "baskaize/image6.svg",
         "baskaize/image7.svg"
     ],
-    "startingBid": 100000000000000,
+    "startingBid": 2500000000000000,
     "symbol": "JMB"
 }

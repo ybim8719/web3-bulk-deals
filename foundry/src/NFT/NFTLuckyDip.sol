@@ -38,9 +38,8 @@ contract NFTLuckyDip {
         uint256 indexed bid,
         address prevBidder
     );
-    /** * States */
+    /** * STATES */
     address private i_owner;
-    mapping(address member => bool isRegistered) private s_members;
     LuckyDip[] private s_luckyDips;
 
     /*** MODIFIERS */
@@ -62,7 +61,7 @@ contract NFTLuckyDip {
         uint256 _startingBid,
         uint256 _bidStep,
         string[] memory imageUris
-    ) public {
+    ) public ownerOnly {
         // TODO require is owner
         s_luckyDips.push(
             LuckyDip(
@@ -108,9 +107,17 @@ contract NFTLuckyDip {
     ) public view returns (string memory) {
         return s_luckyDips[i].nftImageUris[j];
     }
+    
+    function getLuckyDipDescription(uint256 i) public view returns (string memory) {
+        return s_luckyDips[i].description;
+    }
 
     function getLuckyDipNFTLength(uint256 i) public view returns (uint256) {
         return s_luckyDips[i].nftImageUris.length;
+    }
+
+        function getStartingBid(uint256 i) public view returns (uint256) {
+        return s_luckyDips[i].startingBid;
     }
 
     function getNextBiddingPriceInWei(uint256 i) public view returns (uint256) {
