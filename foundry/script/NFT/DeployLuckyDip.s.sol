@@ -4,7 +4,7 @@ pragma solidity 0.8.19;
 import {Script, console} from "forge-std/Script.sol";
 import {NFTLuckyDip} from "../../src/NFT/NFTLuckyDip.sol";
 import {LuckyDip} from "../../src/NFT/structs/LuckyDip.sol";
-import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
+import {ConvertSvg} from "./ConvertSvg.sol";
 
 /**
  * @title
@@ -14,6 +14,7 @@ import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
  * https://book.getfoundry.sh/cheatcodes/parse-json
  */
 contract DeployNFTLuckyDip is Script {
+    using ConvertSvg for string;
     string constant SVG_FOLDER_PATH = "./feed/img/";
     string[] s_tmpImageUris;
 
@@ -39,19 +40,15 @@ contract DeployNFTLuckyDip is Script {
     function run() external returns (NFTLuckyDip luckyDip) {
         console.log("in script msg.sender is ", msg.sender);
         console.log("in script address (this) is ", address(this));
-        // luckyDip = instantiateNftLuckyDip();
-        vm.startBroadcast();
-        luckyDip = new NFTLuckyDip();
-        vm.stopBroadcast();
+        luckyDip = instantiateNftLuckyDip();
         populateLuckyDips(luckyDip);
         return luckyDip;
     }
 
-    function runMocked() external returns (NFTLuckyDip luckyDip) {
-        console.log("in script msg.sender is ", msg.sender);
-        console.log("in script address (this) is ", address(this));
+    function runMocked(address caller) external returns (NFTLuckyDip luckyDip) {
         luckyDip = instantiateNftLuckyDip();
-        populateWithMockedLuckyDips(luckyDip);
+        console.log("initial caller is", caller);
+        populateWithMockedLuckyDips(luckyDip, caller);
         return luckyDip;
     }
 
@@ -59,7 +56,6 @@ contract DeployNFTLuckyDip is Script {
         vm.startBroadcast();
         NFTLuckyDip luckyDip = new NFTLuckyDip();
         vm.stopBroadcast();
-        vm.prank(msg.sender);
         console.log(luckyDip.getOwner(), " onwer is !!!! ");
         return luckyDip;
     }
@@ -79,7 +75,7 @@ contract DeployNFTLuckyDip is Script {
             for (uint256 j = 0; j < luckyDipToAdd.nftCollection.length; j++) {
                 // set encoded svg and store temporaly
                 s_tmpImageUris.push(
-                    svgToImageURI(
+                    ConvertSvg.svgToImageURI(
                         vm.readFile(
                             string(
                                 abi.encodePacked(
@@ -91,7 +87,7 @@ contract DeployNFTLuckyDip is Script {
                     )
                 );
             }
-
+            vm.prank(msg.sender);
             luckyDip.addLuckyDip(
                 luckyDipToAdd.description,
                 luckyDipToAdd.symbol,
@@ -103,7 +99,10 @@ contract DeployNFTLuckyDip is Script {
         }
     }
 
-    function populateWithMockedLuckyDips(NFTLuckyDip luckyDip) public {
+    function populateWithMockedLuckyDips(
+        NFTLuckyDip luckyDip,
+        address caller
+    ) public {
         for (uint256 i = 0; i < mockedLuckyDipsFeed.length; i++) {
             string memory json = vm.readFile(mockedLuckyDipsFeed[i]);
             bytes memory data = vm.parseJson(json);
@@ -118,7 +117,7 @@ contract DeployNFTLuckyDip is Script {
             for (uint256 j = 0; j < luckyDipToAdd.nftCollection.length; j++) {
                 // set encoded svg
                 s_tmpImageUris.push(
-                    svgToImageURI(
+                    ConvertSvg.svgToImageURI(
                         vm.readFile(
                             string(
                                 abi.encodePacked(
@@ -130,7 +129,7 @@ contract DeployNFTLuckyDip is Script {
                     )
                 );
             }
-
+            vm.prank(caller);
             luckyDip.addLuckyDip(
                 luckyDipToAdd.description,
                 luckyDipToAdd.symbol,
@@ -140,15 +139,5 @@ contract DeployNFTLuckyDip is Script {
                 s_tmpImageUris
             );
         }
-    }
-
-    function svgToImageURI(
-        string memory svg
-    ) public pure returns (string memory) {
-        string memory baseURI = "data:image/svg+xml;base64,";
-        string memory svgBase64Encoded = Base64.encode(
-            bytes(string(abi.encodePacked(svg))) // Removing unnecessary type castings, this line can be resumed as follows : 'abi.encodePacked(svg)'
-        );
-        return string(abi.encodePacked(baseURI, svgBase64Encoded));
     }
 }
