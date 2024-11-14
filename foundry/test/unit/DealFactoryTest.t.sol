@@ -14,8 +14,7 @@ contract DealFactoryTest is Test {
     uint256 constant STARTING_BALANCE = 10 ether;
     uint256 private constant SEND_VALUE = 0.01 ether;
 
-    string private constant TEST_DESCRIPTION =
-        "bulk packs of 100.000 eggs to be divided by 5";
+    string private constant TEST_DESCRIPTION = "bulk packs of 100.000 eggs to be divided by 5";
     uint256 private constant TEST_INVIDIDUAL_FEE = 100;
     uint256 private constant TEST_NB_OF_CUSTOMERS = 5;
     string private constant TEST_IMG_URL = "www.eggs-url/1";
@@ -27,7 +26,9 @@ contract DealFactoryTest is Test {
         vm.deal(coconuts, STARTING_BALANCE);
     }
 
-    /*** MODIFIERS */
+    /**
+     * MODIFIERS
+     */
     modifier registered() {
         vm.prank(coconuts);
         factory.applyForMembership{value: SEND_VALUE}();
@@ -43,17 +44,15 @@ contract DealFactoryTest is Test {
         assertEq(factory.getMember(address(coconuts)), true);
         vm.prank(coconuts);
         factory.submitProposal(
-            TEST_DESCRIPTION,
-            TEST_INVIDIDUAL_FEE,
-            TEST_NB_OF_CUSTOMERS,
-            TEST_IMG_URL,
-            TEST_INTERNAL_ID
+            TEST_DESCRIPTION, TEST_INVIDIDUAL_FEE, TEST_NB_OF_CUSTOMERS, TEST_IMG_URL, TEST_INTERNAL_ID
         );
         assertEq(factory.getNbOfPendingProposals(address(coconuts)), 1);
         _;
     }
 
-    /*** MEMBERSHIP */
+    /**
+     * MEMBERSHIP
+     */
     function testOwnerIsMsgSender() public view {
         // when passing throught a script, caller of test is the msg.sender to the final contract
         assertEq(factory.getOwner(), msg.sender);
@@ -100,15 +99,16 @@ contract DealFactoryTest is Test {
         factory.removeMembership(address(coconuts));
     }
 
-    /*** SUBMIT PROPOSAL */
+    /**
+     * SUBMIT PROPOSAL
+     */
     function testCanSubmitProposal() public registeredAndSubmitted {
-        assertEq(
-            factory.getPendingProposal(0, address(coconuts)).internalId,
-            TEST_INTERNAL_ID
-        );
+        assertEq(factory.getPendingProposal(0, address(coconuts)).internalId, TEST_INTERNAL_ID);
     }
 
-    /*** CANCEL PROPOSAL*/
+    /**
+     * CANCEL PROPOSAL
+     */
     function testMemberCancelHisProposal() public registeredAndSubmitted {
         vm.prank(coconuts);
         factory.cancelPendingProposal(TEST_INTERNAL_ID);
@@ -117,21 +117,17 @@ contract DealFactoryTest is Test {
 
     function testOwnerCanCancelMembersProposal() public registeredAndSubmitted {
         vm.prank(msg.sender);
-        factory.ownerCancelsPendingProposal(
-            address(coconuts),
-            TEST_INTERNAL_ID
-        );
+        factory.ownerCancelsPendingProposal(address(coconuts), TEST_INTERNAL_ID);
         assertEq(factory.getNbOfPendingProposals(address(coconuts)), 0);
     }
 
-    /*** DEPLOY PROPOSAL*/
+    /**
+     * DEPLOY PROPOSAL
+     */
     function testOWnerDeployedProperly() public registeredAndSubmitted {
         vm.prank(msg.sender);
         factory.approveAndDeployProposal(address(coconuts), TEST_INTERNAL_ID);
-        DeployedMinimal memory bulkDealInfo = factory.getDeployed(
-            address(coconuts),
-            0
-        );
+        DeployedMinimal memory bulkDealInfo = factory.getDeployed(address(coconuts), 0);
         assertEq(bulkDealInfo.deployed != address(0), true);
         assertEq(factory.getNbOfPendingProposals(address(coconuts)), 0);
         BulkDeal bulkDeal = BulkDeal(bulkDealInfo.deployed);

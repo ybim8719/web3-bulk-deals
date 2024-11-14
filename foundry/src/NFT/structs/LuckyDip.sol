@@ -11,7 +11,7 @@ struct LuckyDip {
     uint256 nextBidStep;
     address bestBidder;
     address deployed;
-    uint nftImageUrisSize;
+    uint256 nftImageUrisSize;
     string[] nftImageUris;
-    // LATER add validaty duration in seconds
 }
+// LATER add validaty duration in seconds

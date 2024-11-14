@@ -17,32 +17,29 @@ import {LuckyDip} from "./structs/LuckyDip.sol";
  * For more, follow instructions in the read me file or in the Contract script/DeployNFTLuckyDip.s.sol
  */
 contract NFTLuckyDip {
-    /** * ERRORS */
+    /**
+     * ERRORS
+     */
     error NFTLuckyDip__OwnerOnly();
     error NFTLuckyDip__MemberOnly();
-    error NFTLuckyDip__InvalidMembershipFeeSent(
-        uint256 required,
-        uint256 passed
-    );
+    error NFTLuckyDip__InvalidMembershipFeeSent(uint256 required, uint256 passed);
     error NFTLuckyDip__CantRemoveOwnerFromMembers();
     error NFTLuckyDip__ApplierAlreadyRegistered(address applier);
     error NFTLuckyDip__UnsufficientFunds(uint256 contractBalance);
     error NFTLuckyDip__InexistantMember(address memberToRemove);
 
-    /** * CONSTANTS */
+    /*** CONSTANTS*/
     uint256 private constant MEMBERSHIP_FEE = 0.01 ether;
-    /** * Events */
-    event NewBid(
-        uint256 indexed luckyDipIndex,
-        address indexed bestBidder,
-        uint256 indexed bid,
-        address prevBidder
-    );
-    /** * STATES */
+    /*** Events*/
+    event NewBid(uint256 indexed luckyDipIndex, address indexed bestBidder, uint256 indexed bid, address prevBidder);
+    /*** STATES*/
+
     address private i_owner;
     LuckyDip[] private s_luckyDips;
 
-    /*** MODIFIERS */
+    /**
+     * MODIFIERS
+     */
     modifier ownerOnly() {
         if (msg.sender != i_owner) {
             revert NFTLuckyDip__OwnerOnly();
@@ -96,18 +93,17 @@ contract NFTLuckyDip {
         // give the address the full ownership of thjis contract
     }
 
-    /*** GETTERS */
+    /**
+     * GETTERS
+     */
     function getNbOfLuckyDips() public view returns (uint256) {
         return s_luckyDips.length;
     }
 
-    function getLuckyDipNFT(
-        uint256 i,
-        uint256 j
-    ) public view returns (string memory) {
+    function getLuckyDipNFT(uint256 i, uint256 j) public view returns (string memory) {
         return s_luckyDips[i].nftImageUris[j];
     }
-    
+
     function getLuckyDipDescription(uint256 i) public view returns (string memory) {
         return s_luckyDips[i].description;
     }
@@ -121,8 +117,7 @@ contract NFTLuckyDip {
     }
 
     function getNextBiddingPriceInWei(uint256 i) public view returns (uint256) {
-        return (s_luckyDips[i].startingBid +
-            (s_luckyDips[i].bidStep * s_luckyDips[i].nextBidStep));
+        return (s_luckyDips[i].startingBid + (s_luckyDips[i].bidStep * s_luckyDips[i].nextBidStep));
     }
 
     function getLuckyDipStatus(uint256 i) public view returns (bool) {
