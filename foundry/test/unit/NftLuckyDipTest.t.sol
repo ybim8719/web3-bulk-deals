@@ -44,6 +44,11 @@ contract NftLuckyDipTest is Test {
     /**
      * MODIFIERS
      */
+    modifier bidIsOpen() {
+        vm.prank(msg.sender);
+        s_luckyDip.openBid(0);
+        assertEq(s_luckyDip.isLuckyDipPublished(0), true);
+    }
 
     /*** UNIT TESTS */
     function testLuckyDipAddingWorks() public view {
@@ -85,7 +90,7 @@ contract NftLuckyDipTest is Test {
         s_luckyDip.openBid(0);
         assertEq(s_luckyDip.isLuckyDipPublished(0), true);
     }
-    
+
     function testUserCantOpenBid() public {
         assertEq(s_luckyDip.isLuckyDipPublished(0), false);
         vm.prank(user1);
