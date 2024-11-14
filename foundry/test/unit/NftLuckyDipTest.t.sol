@@ -79,6 +79,27 @@ contract NftLuckyDipTest is Test {
         assertEq(s_luckyDip.getLuckyDipStatus(1), false);
     }
 
+    function testOwnerCanOpenBid() public {
+        assertEq(s_luckyDip.isLuckyDipPublished(0), false);
+        vm.prank(msg.sender);
+        s_luckyDip.openBid(0);
+        assertEq(s_luckyDip.isLuckyDipPublished(0), true);
+    }
+    
+    function testUserCantOpenBid() public {
+        assertEq(s_luckyDip.isLuckyDipPublished(0), false);
+        vm.prank(user1);
+        vm.expectRevert();
+        s_luckyDip.openBid(0);
+    }
+
+    function cantBidOnClosedBid() public {
+        assertEq(s_luckyDip.isLuckyDipPublished(0), false);
+        vm.prank(user1);
+        vm.expectRevert();
+        s_luckyDip.bidForLuckyDip{value: s_luckyDip.getNextBiddingPriceInWei(0)}(0);
+    }
     // TODO anyone can bid with suficient amount
     function testCantBidWithInvalidAmount() public view {}
+
 }

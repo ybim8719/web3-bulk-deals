@@ -17,32 +17,35 @@ import {LuckyDip} from "./structs/LuckyDip.sol";
  * For more, follow instructions in the read me file or in the Contract script/DeployNFTLuckyDip.s.sol
  */
 contract NFTLuckyDip {
-    /**
-     * ERRORS
-     */
+    /*** ERRORS */
     error NFTLuckyDip__OwnerOnly();
-    error NFTLuckyDip__MemberOnly();
-    error NFTLuckyDip__InvalidMembershipFeeSent(uint256 required, uint256 passed);
-    error NFTLuckyDip__CantRemoveOwnerFromMembers();
-    error NFTLuckyDip__ApplierAlreadyRegistered(address applier);
-    error NFTLuckyDip__UnsufficientFunds(uint256 contractBalance);
-    error NFTLuckyDip__InexistantMember(address memberToRemove);
-
-    /*** CONSTANTS*/
+    error NFTLuckyDip__InvalidBiddingAmount(address caller, uint256 sentValue);
+    error NFTLuckyDip__BidAlreadyAchieved(uint256 index);
+    error NFTLuckyDip__BidNotOpenYet(uint256 index);
+    error NFTLuckyDip__UnsufficientFunds(uint256 amountToSend, uint currentBalance);
+    /*** CONSTANTS */
     uint256 private constant MEMBERSHIP_FEE = 0.01 ether;
-    /*** Events*/
-    event NewBid(uint256 indexed luckyDipIndex, address indexed bestBidder, uint256 indexed bid, address prevBidder);
-    /*** STATES*/
-
+    /*** Events */
+    event NewBid(uint256 indexed luckyDipIndex, address indexed bestBidder, uint256 indexed bid);
+    /*** STATES */
     address private i_owner;
     LuckyDip[] private s_luckyDips;
 
-    /**
-     * MODIFIERS
-     */
+    /*** MODIFIERS */
     modifier ownerOnly() {
         if (msg.sender != i_owner) {
             revert NFTLuckyDip__OwnerOnly();
+        }
+        _;
+    }
+
+    modifier isBiddable(uint256 i) {
+        // check if not already deployed 
+        if (s_luckyDips[i].deployed != address(0)) {
+            revert NFTLuckyDip__BidAlreadyAchieved(i);
+        }
+        if (s_luckyDips[i].isPublished == false) {
+            revert NFTLuckyDip__BidNotOpenYet(i);
         }
         _;
     }
@@ -71,20 +74,34 @@ contract NFTLuckyDip {
                 0,
                 address(0),
                 address(0),
-                imageUris.length,
                 imageUris
             )
         );
     }
 
-    function bidForLuckyDip(uint256 i) public payable {
+    function bidForLuckyDip(uint256 i) public payable isBiddable(i) {
         //check if amount sent is ok for winning
-        // cehck conract balance and send back the money to previous bidder.
-        // update the luckydip info with the new bestBidder address, and the next step to reach
-        // create the event
+        if (msg.value != getNextBiddingPriceInWei(i)) {
+            revert NFTLuckyDip__InvalidBiddingAmount(msg.sender, msg.value);
+        }
+
+        // Check if it has a previous bidder. 
+        if (s_luckyDips[i].bestBidder != address(0)) {
+            uint256 prevBid = s_luckyDips[i].startingBid + (s_luckyDips[i].bidStep * (s_luckyDips[i].nextBidStep - 1));
+            // then check contract balance 
+            if (address(this).balance < prevBid) {
+                revert NFTLuckyDip__UnsufficientFunds(prevBid, address(this).balance);
+            }
+            // send back the previous bid amount to prev bidder 
+            (bool callSuccess,) = payable(s_luckyDips[i].bestBidder).call{value: prevBid}("");
+            require(callSuccess, "Call failed");
+        }
+        s_luckyDips[i].bestBidder = msg.sender;
+        s_luckyDips[i].nextBidStep++;
+        emit NewBid(i, msg.sender, msg.value);
     }
 
-    function openLuckyDipBid(uint256 i) public ownerOnly {
+    function openBid(uint256 i) public ownerOnly {
         s_luckyDips[i].isPublished = true;
     }
 
@@ -93,9 +110,11 @@ contract NFTLuckyDip {
         // give the address the full ownership of thjis contract
     }
 
-    /**
-     * GETTERS
-     */
+    /*** GETTERS*/
+    function isLuckyDipPublished(uint256 i) public view returns (bool) {
+        return s_luckyDips[i].isPublished;
+    }
+
     function getNbOfLuckyDips() public view returns (uint256) {
         return s_luckyDips.length;
     }
