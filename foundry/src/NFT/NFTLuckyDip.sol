@@ -5,8 +5,9 @@ pragma solidity ^0.8.19;
 import {LuckyDip} from "./structs/LuckyDip.sol";
 
 // TODO FOR LATER
-// 1) add an oracle triggering service to execute automatically closure of luckyDipBidden depending on validity time
-// 2) rethink about payable membership...
+// 1) Add a time interval which is validity duration in seconds of the bip. 
+// 2) this interval has to be .... before any validation of winning bid 
+// 3) add an oracle triggering service to execute automatically closure of luckyDipBidden
 
 /**
  * @title NFTLuckyDip is a bid application of luckyDips selling the ownership of a set of nft designed by a unique artist
@@ -23,6 +24,7 @@ contract NFTLuckyDip {
     error NFTLuckyDip__BidAlreadyAchieved(uint256 index);
     error NFTLuckyDip__BidNotOpenYet(uint256 index);
     error NFTLuckyDip__UnsufficientFunds(uint256 amountToSend, uint currentBalance);
+    error NFTLuckyDip__CantBidWhenAlreadyBestBidder(uint256 index);
     /*** CONSTANTS */
     uint256 private constant MEMBERSHIP_FEE = 0.01 ether;
     /*** Events */
@@ -80,7 +82,11 @@ contract NFTLuckyDip {
     }
 
     function bidForLuckyDip(uint256 i) public payable isBiddable(i) {
-        //check if amount sent is ok for winning
+        //check if amount sent is ok for winning the bid
+        if (msg.sender != s_luckyDips[i].bestBidder) {
+            revert NFTLuckyDip__CantBidWhenAlreadyBestBidder(i);
+        }
+        //check if amount sent is ok for winning the bid
         if (msg.value != getNextBiddingPriceInWei(i)) {
             revert NFTLuckyDip__InvalidBiddingAmount(msg.sender, msg.value);
         }
@@ -143,7 +149,12 @@ contract NFTLuckyDip {
         return s_luckyDips[i].isPublished;
     }
 
-    function getOwner() public virtual returns (address) {
+    function getOwner() public view returns (address) {
         return i_owner;
+    }
+    
+    function getBestBidder(uint256 i) public view returns (address) {
+        return s_luckyDips[i].bestBidder;
+
     }
 }

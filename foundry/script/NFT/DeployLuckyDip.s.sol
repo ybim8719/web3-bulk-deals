@@ -15,7 +15,7 @@ import {ConvertSvg} from "./ConvertSvg.sol";
  */
 contract DeployNFTLuckyDip is Script {
     using ConvertSvg for string;
-
+    
     struct LuckyDipJson {
         uint256 bidStep;
         string description;
@@ -24,45 +24,33 @@ contract DeployNFTLuckyDip is Script {
         uint256 startingBid;
         string symbol;
     }
-    /**
-     * CONST
-     */
-
+    /*** CONST*/
     string constant SVG_FOLDER_PATH = "./feed/img/";
-    /**
-     * STATES
-     */
+    /*** STATES*/
     NFTLuckyDip luckyDip;
     string[] s_tmpImageUris;
-
-    /**
-     * JSON FEED PATH
-     */
+    /*** JSON FEED PATH*/
     string[] luckyDipsFeed =
         ["./feed/lucky-dip1.json", "./feed/lucky-dip2.json", "./feed/lucky-dip3.json", "./feed/lucky-dip4.json"];
     string[] mockedLuckyDipsFeed = ["./feed/mocked-luckydip1.json"];
 
-    /**
-     * ERROR
-     */
+    /*** ERROR*/
     error NftCollectionEmpty();
 
     function run() external returns (NFTLuckyDip) {
-        instantiateNftLuckyDip();
+        deploy();
         populateLuckyDips();
         return luckyDip;
     }
 
-    /**
-     * CALLED BY TEST Contract to deploy and feed contract with mocked data
-     */
+    /*** CALLED BY TEST Contract to deploy and feed contract with mocked data*/
     function runMocked(address caller) external returns (NFTLuckyDip) {
-        instantiateNftLuckyDip();
+        deploy();
         populateWithMockedLuckyDips(caller);
         return luckyDip;
     }
 
-    function instantiateNftLuckyDip() internal {
+    function deploy() internal {
         vm.startBroadcast();
         luckyDip = new NFTLuckyDip();
         vm.stopBroadcast();

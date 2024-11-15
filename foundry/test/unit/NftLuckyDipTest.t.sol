@@ -48,6 +48,7 @@ contract NftLuckyDipTest is Test {
         vm.prank(msg.sender);
         s_luckyDip.openBid(0);
         assertEq(s_luckyDip.isLuckyDipPublished(0), true);
+        _;
     }
 
     /*** UNIT TESTS */
@@ -105,6 +106,12 @@ contract NftLuckyDipTest is Test {
         s_luckyDip.bidForLuckyDip{value: s_luckyDip.getNextBiddingPriceInWei(0)}(0);
     }
     // TODO anyone can bid with suficient amount
-    function testCantBidWithInvalidAmount() public view {}
+    function testCantBidWithInvalidAmount() public bidIsOpen {
+        vm.prank(user1);
+        s_luckyDip.bidForLuckyDip{value: s_luckyDip.getNextBiddingPriceInWei(0)}(0);
+        assertEq(s_luckyDip.getNextBiddingPriceInWei(0), (DEFAULT_MOCK_STARTINGBID + (1 * DEFAULT_MOCK_BIDSTEP)));
+        assertEq(s_luckyDip.getBestBidder(0), user1);
+
+    }
 
 }
