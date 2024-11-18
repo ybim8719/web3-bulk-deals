@@ -95,29 +95,39 @@ contract NftLuckyDipTest is Test {
      function testUserCantOpenBid() public {
         assertEq(s_luckyDip.isLuckyDipPublished(0), false);
         vm.prank(user1);
-        vm.expectRevert();
+        vm.expectRevert(NFTLuckyDip.NFTLuckyDip__OwnerOnly.selector);
         s_luckyDip.openBid(0);
     }
 
-    // GOTCHA Found here: https://ethereum.stackexchange.com/questions/158768/vm-expectrevert-is-not-working-as-expected-in-foundry
     function testCantBidOnClosedBid() public {
         vm.startPrank(user1);
-        uint sendValue = s_luckyDip.getNextBiddingPriceInWei(0);
-        vm.expectRevert();
+        // isolating this variable is mandatory because: https://ethereum.stackexchange.com/questions/158768/vm-expectrevert-is-not-working-as-expected-in-foundry
+        uint256 sendValue = s_luckyDip.getNextBiddingPriceInWei(0);
+        vm.expectRevert(abi.encodeWithSelector(
+            NFTLuckyDip.NFTLuckyDip__BidNotOpenYet.selector,
+            0
+        ));
         s_luckyDip.bidForLuckyDip{value: sendValue}(0);
         vm.stopPrank();
     }
 
-    // TODO anyone can bid with suficient amount
-    // function testCantBidWithInvalidAmount() public bidIsOpen {
-    //     console.log('test caller is ', msg.sender);
-    //     console.log('user1 is ', user1);
-    //     console.log('test contract is ', address(this));
+    function testCanBidWithvalidAmount() public bidIsOpen {
+        vm.startPrank(user1);
+        s_luckyDip.bidForLuckyDip{value: s_luckyDip.getNextBiddingPriceInWei(0)}(0);
+        vm.stopPrank();
+        assertEq(s_luckyDip.getNextBiddingPriceInWei(0), (DEFAULT_MOCK_STARTINGBID + (1 * DEFAULT_MOCK_BIDSTEP)));
+        assertEq(s_luckyDip.getBestBidder(0), user1);
+    }
 
-    //     console.log('best bidder is ', s_luckyDip.getBestBidder(0));
-    //     vm.prank(user1);
-    //     s_luckyDip.bidForLuckyDip{value: s_luckyDip.getNextBiddingPriceInWei(0)}(0);
-    //     assertEq(s_luckyDip.getNextBiddingPriceInWei(0), (DEFAULT_MOCK_STARTINGBID + (1 * DEFAULT_MOCK_BIDSTEP)));
-    //     assertEq(s_luckyDip.getBestBidder(0), user1);
-    // }
+    function testCantBidWithInvalidAmount() public bidIsOpen {
+        vm.startPrank(user1);
+        uint256 wrongValue = s_luckyDip.getNextBiddingPriceInWei(0) + 1;
+        vm.expectRevert(abi.encodeWithSelector(
+            NFTLuckyDip.NFTLuckyDip__InvalidBiddingAmount.selector,
+            user1,
+            wrongValue
+        ));
+        s_luckyDip.bidForLuckyDip{value: wrongValue}(0);
+        vm.stopPrank();
+    }
 }
