@@ -3,7 +3,7 @@
 pragma solidity ^0.8.19;
 
 import {LuckyDip} from "./structs/LuckyDip.sol";
-
+import {console} from "forge-std/Script.sol";
 // TODO FOR LATER
 // 1) Add a time interval which is validity duration in seconds of the bip. 
 // 2) this interval has to be .... before any validation of winning bid 
@@ -42,12 +42,12 @@ contract NFTLuckyDip {
     }
 
     modifier isBiddable(uint256 i) {
+        if (s_luckyDips[i].isPublished == false) {
+            revert NFTLuckyDip__BidNotOpenYet(i);
+        }
         // check if not already deployed 
         if (s_luckyDips[i].deployed != address(0)) {
             revert NFTLuckyDip__BidAlreadyAchieved(i);
-        }
-        if (s_luckyDips[i].isPublished == false) {
-            revert NFTLuckyDip__BidNotOpenYet(i);
         }
         _;
     }
@@ -82,8 +82,8 @@ contract NFTLuckyDip {
     }
 
     function bidForLuckyDip(uint256 i) public payable isBiddable(i) {
-        //check if amount sent is ok for winning the bid
-        if (msg.sender != s_luckyDips[i].bestBidder) {
+        //check if previous isn't the same as msg.sender
+        if (msg.sender == s_luckyDips[i].bestBidder) {
             revert NFTLuckyDip__CantBidWhenAlreadyBestBidder(i);
         }
         //check if amount sent is ok for winning the bid
@@ -93,6 +93,8 @@ contract NFTLuckyDip {
 
         // Check if it has a previous bidder. 
         if (s_luckyDips[i].bestBidder != address(0)) {
+            console.log("in contract condition");
+
             uint256 prevBid = s_luckyDips[i].startingBid + (s_luckyDips[i].bidStep * (s_luckyDips[i].nextBidStep - 1));
             // then check contract balance 
             if (address(this).balance < prevBid) {
@@ -145,16 +147,11 @@ contract NFTLuckyDip {
         return (s_luckyDips[i].startingBid + (s_luckyDips[i].bidStep * s_luckyDips[i].nextBidStep));
     }
 
-    function getLuckyDipStatus(uint256 i) public view returns (bool) {
-        return s_luckyDips[i].isPublished;
-    }
-
     function getOwner() public view returns (address) {
         return i_owner;
     }
     
     function getBestBidder(uint256 i) public view returns (address) {
         return s_luckyDips[i].bestBidder;
-
     }
 }
