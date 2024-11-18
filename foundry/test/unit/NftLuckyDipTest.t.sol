@@ -131,6 +131,7 @@ contract NftLuckyDipTest is Test {
         // TODO contract balance = sent value during bidding process
         // user1 balance = 10000 - value 
         assertEq(s)
+        //assertEq(address(coconuts).balance, STARTING_BALANCE);
     }
 
     function testCantBidWithInvalidAmount() public bidIsOpen {
@@ -160,7 +161,10 @@ contract NftLuckyDipTest is Test {
         vm.stopPrank();
     }
 
+    //assertEq(address(coconuts).balance, STARTING_BALANCE);
+    function testPreviousBidderGetHisMoneyBack() public oneBidMade {
 
+    }
     //TODO : user2 over bid, money send back to prev best bidder
     // todo : cant bid because of NFTLuckyDip__BidAlreadyAchieved
 }
