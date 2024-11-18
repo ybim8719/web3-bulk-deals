@@ -98,7 +98,7 @@ contract NFTLuckyDip {
             if (address(this).balance < prevBid) {
                 revert NFTLuckyDip__UnsufficientFunds(prevBid, address(this).balance);
             }
-            // send back the previous bid amount to prev bidder 
+            // send back the previous bid amount to prev bidder
             (bool callSuccess,) = payable(s_luckyDips[i].bestBidder).call{value: prevBid}("");
             require(callSuccess, "Call failed");
         }
@@ -111,8 +111,12 @@ contract NFTLuckyDip {
         s_luckyDips[i].isPublished = true;
     }
 
-    function endLuckyDipBid() public ownerOnly {
-        // for given lucky dip check avialbiliy duration and pick the winner, create the ERC721 contract and mint the related nft
+    // for given lucky dip check avialbiliy duration and pick the winner, create the ERC721 contract and mint the related nft
+    function endLuckyDipBid() public ownerOnly {  
+        // no one has ever bid  
+        if (getBestBidder(0) != address(0)) {
+
+        }
         // give the address the full ownership of thjis contract
     }
 

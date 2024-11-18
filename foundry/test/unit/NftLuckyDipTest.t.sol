@@ -41,13 +41,23 @@ contract NftLuckyDipTest is Test {
         vm.deal(user1, STARTING_BALANCE);
     }
 
-    /**
-     * MODIFIERS
-     */
+    /*** MODIFIERS */
     modifier bidIsOpen() {
         vm.prank(msg.sender);
         s_luckyDip.openBid(0);
         assertEq(s_luckyDip.isLuckyDipPublished(0), true);
+        _;
+    }
+
+    /*** MODIFIERS */
+    modifier oneBidMade() {
+        vm.prank(msg.sender);
+        s_luckyDip.openBid(0);
+        assertEq(s_luckyDip.isLuckyDipPublished(0), true);
+        vm.startPrank(user1);
+        s_luckyDip.bidForLuckyDip{value: s_luckyDip.getNextBiddingPriceInWei(0)}(0);
+        vm.stopPrank();
+        assertEq(s_luckyDip.getBestBidder(0), user1);
         _;
     }
 
@@ -113,10 +123,14 @@ contract NftLuckyDipTest is Test {
 
     function testCanBidWithvalidAmount() public bidIsOpen {
         vm.startPrank(user1);
-        s_luckyDip.bidForLuckyDip{value: s_luckyDip.getNextBiddingPriceInWei(0)}(0);
+        uint256 sendValue = s_luckyDip.getNextBiddingPriceInWei(0);
+        s_luckyDip.bidForLuckyDip{value: sendValue}(0);
         vm.stopPrank();
         assertEq(s_luckyDip.getNextBiddingPriceInWei(0), (DEFAULT_MOCK_STARTINGBID + (1 * DEFAULT_MOCK_BIDSTEP)));
         assertEq(s_luckyDip.getBestBidder(0), user1);
+        // TODO contract balance = sent value during bidding process
+        // user1 balance = 10000 - value 
+        assertEq(s)
     }
 
     function testCantBidWithInvalidAmount() public bidIsOpen {
@@ -131,7 +145,7 @@ contract NftLuckyDipTest is Test {
         vm.stopPrank();
     }
 
-      function testCantBidTwoTimesInARow() public bidIsOpen {
+    function testCantBidTwoTimesInARow() public bidIsOpen {
         vm.startPrank(user1);
         uint256 initialBiddingPrice = s_luckyDip.getNextBiddingPriceInWei(0);
         s_luckyDip.bidForLuckyDip{value: initialBiddingPrice}(0);
@@ -146,6 +160,7 @@ contract NftLuckyDipTest is Test {
         vm.stopPrank();
     }
 
-    // todo cant bid because of NFTLuckyDip__BidAlreadyAchieved
 
+    //TODO : user2 over bid, money send back to prev best bidder
+    // todo : cant bid because of NFTLuckyDip__BidAlreadyAchieved
 }
