@@ -130,4 +130,22 @@ contract NftLuckyDipTest is Test {
         s_luckyDip.bidForLuckyDip{value: wrongValue}(0);
         vm.stopPrank();
     }
+
+      function testCantBidTwoTimesInARow() public bidIsOpen {
+        vm.startPrank(user1);
+        uint256 initialBiddingPrice = s_luckyDip.getNextBiddingPriceInWei(0);
+        s_luckyDip.bidForLuckyDip{value: initialBiddingPrice}(0);
+        assertEq(s_luckyDip.getBestBidder(0), user1);
+        uint256 currentBuiddingPrice = s_luckyDip.getNextBiddingPriceInWei(0);
+        assertNotEq(currentBuiddingPrice, initialBiddingPrice);
+        vm.expectRevert(abi.encodeWithSelector(
+            NFTLuckyDip.NFTLuckyDip__CantBidWhenAlreadyBestBidder.selector,
+            0
+        ));
+        s_luckyDip.bidForLuckyDip{value: currentBuiddingPrice}(0);
+        vm.stopPrank();
+    }
+
+    // todo cant bid because of NFTLuckyDip__BidAlreadyAchieved
+
 }

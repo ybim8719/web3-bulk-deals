@@ -83,8 +83,6 @@ contract NFTLuckyDip {
 
     function bidForLuckyDip(uint256 i) public payable isBiddable(i) {
         //check if previous isn't the same as msg.sender
-        console.log('in contract caller is ', msg.sender);
-
         if (msg.sender == s_luckyDips[i].bestBidder) {
             revert NFTLuckyDip__CantBidWhenAlreadyBestBidder(i);
         }
