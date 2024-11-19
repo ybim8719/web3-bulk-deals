@@ -23,14 +23,14 @@
 [x] Deploy bulkDealContract throught factory Contract (on anvil) and interact with it.
 
 [ ] test on forked Url sepolia
-    [ ] for Factory 
+    [ ] for Factory
     [ ] for BulkDeal
 
 [x] Add chainlink price feed 
 
 [x] Add price converter library 
 
-[ ] unit tests 
+[x] achieve unit tests 
     [ ] for Factory 
     [ ] for BulkDeal
 

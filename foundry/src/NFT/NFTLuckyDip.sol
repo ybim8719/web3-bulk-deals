@@ -3,10 +3,12 @@
 pragma solidity ^0.8.19;
 
 import {LuckyDip} from "./structs/LuckyDip.sol";
+import {NFTCollection} from "./NFTCollection.sol";
 import {console} from "forge-std/Script.sol";
+
 // TODO FOR LATER
-// 1) Add a time interval which is validity duration in seconds of the bip. 
-// 2) this interval has to be .... before any validation of winning bid 
+// 1) Add a time interval which is validity duration in seconds of the bip.
+// 2) this interval has to be .... before any validation of winning bid
 // 3) add an oracle triggering service to execute automatically closure of luckyDipBidden
 
 /**
@@ -23,12 +25,20 @@ contract NFTLuckyDip {
     error NFTLuckyDip__InvalidBiddingAmount(address caller, uint256 sentValue);
     error NFTLuckyDip__BidAlreadyAchieved(uint256 index);
     error NFTLuckyDip__BidNotOpenYet(uint256 index);
-    error NFTLuckyDip__UnsufficientFunds(uint256 amountToSend, uint currentBalance);
+    error NFTLuckyDip__UnsufficientFunds(
+        uint256 amountToSend,
+        uint currentBalance
+    );
     error NFTLuckyDip__CantBidWhenAlreadyBestBidder(uint256 index);
+    error NFTLuckyDip__NoOneHasBid(uint256 index);
     /*** CONSTANTS */
     uint256 private constant MEMBERSHIP_FEE = 0.01 ether;
     /*** Events */
-    event NewBid(uint256 indexed luckyDipIndex, address indexed bestBidder, uint256 indexed bid);
+    event NewBid(
+        uint256 indexed luckyDipIndex,
+        address indexed bestBidder,
+        uint256 indexed bid
+    );
     /*** STATES */
     address private i_owner;
     LuckyDip[] private s_luckyDips;
@@ -45,7 +55,7 @@ contract NFTLuckyDip {
         if (s_luckyDips[i].isPublished == false) {
             revert NFTLuckyDip__BidNotOpenYet(i);
         }
-        // check if not already deployed 
+        // check if not already deployed
         if (s_luckyDips[i].deployed != address(0)) {
             revert NFTLuckyDip__BidAlreadyAchieved(i);
         }
@@ -91,15 +101,21 @@ contract NFTLuckyDip {
             revert NFTLuckyDip__InvalidBiddingAmount(msg.sender, msg.value);
         }
 
-        // Check if it has a previous bidder. 
+        // Check if it has a previous bidder.
         if (s_luckyDips[i].bestBidder != address(0)) {
-            uint256 prevBid = s_luckyDips[i].startingBid + (s_luckyDips[i].bidStep * (s_luckyDips[i].nextBidStep - 1));
-            // then check contract balance 
+            uint256 prevBid = s_luckyDips[i].startingBid +
+                (s_luckyDips[i].bidStep * (s_luckyDips[i].nextBidStep - 1));
+            // then check contract balance
             if (address(this).balance < prevBid) {
-                revert NFTLuckyDip__UnsufficientFunds(prevBid, address(this).balance);
+                revert NFTLuckyDip__UnsufficientFunds(
+                    prevBid,
+                    address(this).balance
+                );
             }
             // send back the previous bid amount to prev bidder
-            (bool callSuccess,) = payable(s_luckyDips[i].bestBidder).call{value: prevBid}("");
+            (bool callSuccess, ) = payable(s_luckyDips[i].bestBidder).call{
+                value: prevBid
+            }("");
             require(callSuccess, "Call failed");
         }
         s_luckyDips[i].bestBidder = msg.sender;
@@ -112,12 +128,16 @@ contract NFTLuckyDip {
     }
 
     // for given lucky dip check avialbiliy duration and pick the winner, create the ERC721 contract and mint the related nft
-    function endLuckyDipBid() public ownerOnly {  
-        // no one has ever bid  
-        if (getBestBidder(0) != address(0)) {
-
+    function concludeLuckyDipBid(uint256 i) public ownerOnly isBiddable(i) {
+        if (getBestBidder(0) == address(0)) {
+            // no one has ever bid
+            revert NFTLuckyDip__NoOneHasBid(i);
         }
-        // give the address the full ownership of thjis contract
+
+        // create new NFT contract and
+        // store contract adresse in lucky dip and change status
+        // mint NFT one by one, by passing URI
+        // by giving the address the full ownership of thjis contract
     }
 
     /*** GETTERS*/
@@ -129,11 +149,16 @@ contract NFTLuckyDip {
         return s_luckyDips.length;
     }
 
-    function getLuckyDipNFT(uint256 i, uint256 j) public view returns (string memory) {
+    function getLuckyDipNFT(
+        uint256 i,
+        uint256 j
+    ) public view returns (string memory) {
         return s_luckyDips[i].nftImageUris[j];
     }
 
-    function getLuckyDipDescription(uint256 i) public view returns (string memory) {
+    function getLuckyDipDescription(
+        uint256 i
+    ) public view returns (string memory) {
         return s_luckyDips[i].description;
     }
 
@@ -146,13 +171,14 @@ contract NFTLuckyDip {
     }
 
     function getNextBiddingPriceInWei(uint256 i) public view returns (uint256) {
-        return (s_luckyDips[i].startingBid + (s_luckyDips[i].bidStep * s_luckyDips[i].nextBidStep));
+        return (s_luckyDips[i].startingBid +
+            (s_luckyDips[i].bidStep * s_luckyDips[i].nextBidStep));
     }
 
     function getOwner() public view returns (address) {
         return i_owner;
     }
-    
+
     function getBestBidder(uint256 i) public view returns (address) {
         return s_luckyDips[i].bestBidder;
     }
