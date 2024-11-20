@@ -13,12 +13,13 @@ BULKDEAL !!
 [ ] use cast wallet to store metamask private key
 
 [ ] deploy with fork url on sepolia 
+[ ] what is chainId when forking on sepolia ?
 
 [x] Makefile to adapt
     [x] for Factory 
     [ ] for BulkDeal
 
-[x] Deploy bulkDealContract throught factory Contract (on anvil) and interact with it.
+[x] Deploy bulkDealContract throught factory Contract (on anvil) and interact with it with CAST
 
 [ ] test on forked Url sepolia
     [ ] for Factory 
@@ -29,7 +30,7 @@ BULKDEAL !!
 [x] Add price converter library 
 
 [ ] unit tests 
-    [ ] for Factory 
+    [x] for Factory 
     [ ] for BulkDeal
 
 

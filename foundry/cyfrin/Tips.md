@@ -136,7 +136,7 @@ for (uint160 i = startingFunderIndex; i < numberOfFunders + startingFunderIndex;
 }
 ``` 
 
-Example of prank:
+### Example of prank:
 
 ```
 vm.startPrank(contract.getOwner());
@@ -197,7 +197,7 @@ Reset an array of payable address
                            ENTER RAFFLE
 //////////////////////////////////////////////////////////////*/
 
-## change timesatamp 
+## change timestamp
 
  ``` 
 vm.warp(block.timestamp + interval + 1);
@@ -249,3 +249,55 @@ data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIH
 
 
 assert(keccak256(abi.encodePacked(moodNft.symbol())) == keccak256(abi.encodePacked((NFT_SYMBOL))));
+
+
+## Fuzz testing 
+
+### StateLess test
+
+[fuzz]
+runs = 1000
+
+```
+function testIAlwaysGetZero(uint256 data) public {
+    myContract.doStuff(data);
+    assert(myContract.shouldAlwaysBeZero() == 0);
+}
+``` 
+
+
+Exemple : 
+
+### Statefull test
+
+(test randomly triggers functions with random data in a given contract) 
+
+```
+import {CaughtWithTest} from "src/MyContract.sol";
+import {console, Test} from "forge-std/Test.sol";
+import{StdInvariant} from "forge-std/StdInvariant.sol";
+
+contract MyContractTest is StdInvariant, Test {
+    CaughtWithTest myContract;
+
+    function setUp() public {
+        myContract = new CaughtWithTest();
+        targetContract(address(myContract));
+    }
+
+    function invariant_testAlwaysReturnsZero() public view {
+        assert(truc == 0);
+    }
+}
+```
+step invariant tests params in foundry.toml
+
+```
+[invariant]
+runs = 128
+depth = 128
+fail_on_revert = false
+```
+
+### get max number on int type
+uint256 MAX_DEPOSIT_SIZE = type(uint96).max;
