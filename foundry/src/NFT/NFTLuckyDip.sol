@@ -125,7 +125,7 @@ contract NFTLuckyDip {
         // TODO LATER duration time has been passed
 
         // create new NFT contract and
-        NFTCollection nftCollection = new NFTCollection(getLuckyDipDescription(i),);
+        NFTCollection nftCollection = new NFTCollection(getName(i), getSymbol(i), getLuckyDipDescription(i),);
         // store contract adresse in lucky dip and change status
         s_luckyDips[i].deployed = true;
 

@@ -3,6 +3,7 @@ pragma solidity 0.8.19;
 import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
+import {Booster} from "./structs/Booster.sol";
 
 /**
  * @title
@@ -19,7 +20,9 @@ contract NFTCollection is ERC721, Ownable {
     uint256 private s_tokenCounter;
     uint256 private s_maxNumberOfMintableNFT;
 
-    constructor(string memory _name, string memory _symbol, uint256 _maxNumberOfMintableNFT) ERC721(_name, _symbol) {
+    constructor(string memory _name, string memory _symbol, string memory description, uint256 _maxNumberOfMintableNFT)
+        ERC721(_name, _symbol)
+    {
         s_tokenCounter = 0;
         s_maxNumberOfMintableNFT = _maxNumberOfMintableNFT;
     }
