@@ -23,9 +23,9 @@ contract BulkDeal {
         s_deal = deal;
     }
 
-    /**
-     * modifiers
-     */
+    /*//////////////////////////////////////////////////////////////
+                            MODIFIERS
+    //////////////////////////////////////////////////////////////*/
     modifier onlyOwner() {
         require(msg.sender == i_owner, "PROUT");
         _;
