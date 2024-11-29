@@ -3,7 +3,7 @@
 pragma solidity ^0.8.19;
 
 import {LuckyDip} from "./structs/LuckyDip.sol";
-import {NFTCollection} from "./NFTCollection.sol";
+import {NFTBooster} from "./NFTBooster.sol";
 import {console} from "forge-std/Script.sol";
 
 // TODO FOR LATER
@@ -116,7 +116,7 @@ contract NFTLuckyDip {
     }
 
     // for given lucky dip check avialbiliy duration and pick the winner, create the ERC721 contract and mint the related nft
-    function concludeLuckyDipBid(uint256 i) public ownerOnly isBiddable(i) {
+    function endLuckyDipBid(uint256 i) public ownerOnly isBiddable(i) {
         address winner = getBestBidder(i);
         if (winner == address(0)) {
             // no one has ever bid
@@ -124,17 +124,19 @@ contract NFTLuckyDip {
         }
         // TODO LATER duration time has been passed
 
-        // create new NFT contract and
-        NFTCollection nftCollection = new NFTCollection(getName(i), getSymbol(i), getLuckyDipDescription(i),);
-        // store contract adresse in lucky dip and change status
-        s_luckyDips[i].deployed = true;
-
-        // mint NFT one by one, by passing URI
-        
-        nft.mint();
-
+        // create new NFT contract and store address
+        NFTBooster nftBooster = new NFTBooster(
+            getName(i), getSymbol(i), getLuckyDipDescription(i), getCurrentBiddingPriceInWei(i), getLuckyDipNFTLength(i)
+        );
+        // store contract adress in lucky dip
+        s_luckyDips[i].deployed = address(nftBooster);
+        // mint NFT one by one, by passing URI and bid winner
+        for (uint256 j = 0; j < getLuckyDipNFTLength(i); j++) {
+            nftBooster.mintNft(getLuckyDipNFT(i, j), getBestBidder(i));
+        }
         // by giving the address the full ownership of thjis contract
-        nftCollection.transferOwnership();
+        nftBooster.transferOwnership(getBestBidder(i));
+        // send the bidding money to the owner of this contract
     }
 
     /**
@@ -142,6 +144,14 @@ contract NFTLuckyDip {
      */
     function isLuckyDipPublished(uint256 i) public view returns (bool) {
         return s_luckyDips[i].isPublished;
+    }
+
+    function getName(uint256 i) public view returns (string memory) {
+        return s_luckyDips[i].name;
+    }
+
+    function getSymbol(uint256 i) public view returns (string memory) {
+        return s_luckyDips[i].symbol;
     }
 
     function getNbOfLuckyDips() public view returns (uint256) {
@@ -166,6 +176,10 @@ contract NFTLuckyDip {
 
     function getNextBiddingPriceInWei(uint256 i) public view returns (uint256) {
         return (s_luckyDips[i].startingBid + (s_luckyDips[i].bidStep * s_luckyDips[i].nextBidStep));
+    }
+
+    function getCurrentBiddingPriceInWei(uint256 i) public view returns (uint256) {
+        return (s_luckyDips[i].startingBid + (s_luckyDips[i].bidStep * (s_luckyDips[i].nextBidStep - 1)));
     }
 
     function getOwner() public view returns (address) {
