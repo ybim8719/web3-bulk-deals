@@ -3,7 +3,6 @@ pragma solidity 0.8.19;
 import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {Base64} from "@openzeppelin/contracts/utils/Base64.sol";
-import {Booster} from "./structs/Booster.sol";
 
 /**
  * @title
@@ -60,17 +59,16 @@ contract NFTBooster is ERC721, Ownable {
                 Base64.encode(
                     bytes( // bytes casting actually unnecessary as 'abi.encodePacked()' returns a bytes
                         abi.encodePacked(
-                            '{"name":"',
-                            name(),
-                            '", "description":"An NFT that reflects the mood of the owner, 100% on Chain!", ',
-                            '"attributes": [{"trait_type": "moodiness", "value": 100}], "image":"',
-                            imageURI,
-                            '"}'
+                            '{"name":"', name(), '", "description":"', s_description, '", "image":"', imageURI, '"}'
                         )
                     )
                 )
             )
         );
+    }
+
+    function getImageUri(uint256 tokenId) public view returns (string memory) {
+        return s_tokenIdToUri[tokenId];
     }
 
     function getTokenCounter() public view returns (uint256) {

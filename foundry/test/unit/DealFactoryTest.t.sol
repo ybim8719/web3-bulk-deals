@@ -139,5 +139,10 @@ contract DealFactoryTest is Test {
         vm.expectRevert();
         factory.approveAndDeployProposal(address(coconuts), TEST_INTERNAL_ID);
     }
-    // TODO test multiple proposal with many customers and check indexes et content of s_proposals. 
+
+    /**
+     * TODO test multiple proposal with many customers and check indexes et content of s_proposals.
+     */
+
+    //
 }
