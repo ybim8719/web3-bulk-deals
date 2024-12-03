@@ -16,3 +16,6 @@ https://blog.openzeppelin.com/deconstructing-a-solidity-smart-contract-part-i-in
 Check encoded signatures and selectors
 
 https://blog.openzeppelin.com/deconstructing-a-solidity-smart-contract-part-i-introduction-832efd2d7737
+
+snes css https://nostalgic-css.github.io/NES.css/
+
