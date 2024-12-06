@@ -4,24 +4,12 @@ pragma solidity ^0.8.19;
 import {DeployedDeal} from "./structs/BulkDealProposal.sol";
 
 contract BulkDeal {
-    /**
-     * error
-     */
-    /**
-     * events
-     */
-
-    /**
-     * data
-     */
+    /*//////////////////////////////////////////////////////////////
+                            STATES
+    //////////////////////////////////////////////////////////////*/
     address private immutable i_owner;
     DeployedDeal private s_deal;
     address[] s_customers;
-
-    constructor(DeployedDeal memory deal) {
-        i_owner = deal.seller;
-        s_deal = deal;
-    }
 
     /*//////////////////////////////////////////////////////////////
                             MODIFIERS
@@ -29,6 +17,11 @@ contract BulkDeal {
     modifier onlyOwner() {
         require(msg.sender == i_owner, "PROUT");
         _;
+    }
+
+    constructor(DeployedDeal memory deal) {
+        i_owner = deal.seller;
+        s_deal = deal;
     }
 
     /**
@@ -41,9 +34,9 @@ contract BulkDeal {
         s_customers.push(msg.sender);
     }
 
-    /**
-     * getters
-     */
+    /*//////////////////////////////////////////////////////////////
+                            GETTERS
+    //////////////////////////////////////////////////////////////*/
     function getOwner() public view returns (address) {
         return i_owner;
     }

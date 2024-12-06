@@ -187,4 +187,6 @@ contract NftLuckyDipTest is Test {
     // ending bid doesnt work if not one ever bid
 
     // after bid ending new owner of Booster contract is best bidder + and has correct nb of nft.
+
+    // cant end bidding if contract funds not enpought
 }
