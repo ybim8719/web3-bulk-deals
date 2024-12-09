@@ -4,11 +4,9 @@
 This repo is a personal project that I've developed over the course of my solidity apprenticeship, integrating notions I've acquired along the way (chainlink, openzeppelin, ERC721, ERC20, etc...). 
 
 You should therefore consider this project as a sandbox, even though the applications function normally and integrate business logic.  
+**BulkDealFactory** is a contract that enables accounts to offer wholesale sales of goods of all kinds at discounted prices.
 
-To date, two applications have been implemented: 
-1) **BulkDealFactory** is a contract that enables accounts to offer wholesale sales of goods of all kinds at discounted prices.
-
-2) **NFTLuckyDip** is an auction market for surprise folders containing a series of NFTs created by artists. The works are revealed only when the auction is completed via the deployment of an ERC 721 contract.
+ **NFTLuckyDip** is an auction market for surprise folders containing a series of NFTs created by artists. The works are revealed only when the auction is completed via the deployment of an ERC 721 contract.
 
 
 ## Getting Started

@@ -264,7 +264,6 @@ contract DealFactory {
     }
 
     function getDeployed(address member, uint256 index) public view returns (DeployedMinimal memory) {
-        //TODO verify that index exists ?
         return s_deployedProposals[member][index];
     }
 
