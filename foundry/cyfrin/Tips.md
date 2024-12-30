@@ -187,7 +187,7 @@ The `.PHONY:` tells make that all the `all test clean deploy fund help install s
 forge remappings>remappings.txt
 ``` 
 
-Reset an array of payable address 
+- Reset an array of payable address 
 
  ``` 
  s_players = new address payable[](0);
