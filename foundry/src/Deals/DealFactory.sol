@@ -8,21 +8,20 @@ import {PriceConverter} from "../library/PriceConverter.sol";
 
 /**
  * @title DealFactory
- * @author ybim
- * @notice as a visitor, you'll need to apply membership in order to proposal commercial deals to the owner
- *     Dès lors, vous pourrez:
- *     - soumettre une offre de vente groupée à la communauté
- *     - participer à un achat groupé
- *     L'administrateur aura en charge les inscriptions et les règlements de celles-ci, et de valider ou refuser les propositions de vente et de les publier.
- * @dev It implements Chainlink VRFv2 and Chainlink Automation
+ * @author ybim8719
+ * @notice in this contract, visitors apply for membership (cost 0.01 eth) in order to propose bulk deals of goods destined to be published on a specific contract
+ *     - The deal corresponds to a group sale containing the description and distribution of the goods sold, the number of buyers required and the unit sales price
+ *     - The deal is submitted to the owner's approval.
+ *     - In case of refusal, the submitters money is sent back
+ *     - in case of approval, a new contrat named BulkDeal is deployed (and contains all the commercial data included in the proposal) and the submitter becomes the owner of the contract.
+ * @dev uses Chainlink Price feed.
  */
-// TODO MAKE the pending proposal payable ?
 contract DealFactory {
     using PriceConverter for uint256;
-    /**
-     * ERRORS
-     */
 
+    /*//////////////////////////////////////////////////////////////
+                        ERRORS
+    //////////////////////////////////////////////////////////////*/
     error DealFactory__InvalidMembershipFeeSent(uint256 required, uint256 passed);
     error DealFactory__CantRemoveOwnerFromMembers();
     error DealFactory__ApplierAlreadyRegistered(address applier);
@@ -33,25 +32,25 @@ contract DealFactory {
     error DealFactory__MemberHasPendingProposal(address memberToRemove);
     error DealFactory__ProposalNotFound(string internalId, address seller);
     error DealFactory__MaxNumberOfProposalReached(string internalId, address seller);
-
     error DealFactory__OwnerOnly();
     error DealFactory__MemberOnly();
-    /**
-     * CONSTANTS
-     */
 
-    uint256 private constant MEMBERSHIP_FEE = 0.01 ether;
+    /*//////////////////////////////////////////////////////////////
+                        CONSTANTS
+    //////////////////////////////////////////////////////////////*/
+    uint256 private constant MEMBERSHIP_FEE = 0.05 ether;
+    uint256 private constant PROPOSAL_FEE = 0.01 ether;
     uint256 private constant MAX_PENDING_PROPOSALS_PER_MEMBER = 10;
-    /**
-     * EVENTS
-     */
 
+    /*//////////////////////////////////////////////////////////////
+                        EVENTS
+    //////////////////////////////////////////////////////////////*/
     event ProposalPublished(address indexed _newContract, address indexed _seller, string _internalId);
     event ProposalCancelled(address member, string internalId);
 
-    /**
-     * STORAGE
-     */
+    /*//////////////////////////////////////////////////////////////
+                        STORAGE
+    //////////////////////////////////////////////////////////////*/
     AggregatorV3Interface private immutable i_priceFeed;
     address private immutable i_owner;
     mapping(address member => bool isRegistered) private s_members;
@@ -65,9 +64,9 @@ contract DealFactory {
         i_priceFeed = AggregatorV3Interface(priceFeed);
     }
 
-    /**
-     * MODIFIERS
-     */
+    /*//////////////////////////////////////////////////////////////
+                        MODIFIERS
+    //////////////////////////////////////////////////////////////*/
     modifier ownerOnly() {
         if (msg.sender != i_owner) {
             revert DealFactory__OwnerOnly();
@@ -229,9 +228,9 @@ contract DealFactory {
         }
     }
 
-    /**
-     * GETTERS
-     */
+    /*//////////////////////////////////////////////////////////////
+                        VIEW/PURE
+    //////////////////////////////////////////////////////////////*/
     function getMembershipFee() public pure returns (uint256) {
         return MEMBERSHIP_FEE;
     }

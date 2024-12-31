@@ -24,9 +24,9 @@ contract BulkDeal {
         s_deal = deal;
     }
 
-    /**
-     * transactions
-     */
+    /*//////////////////////////////////////////////////////////////
+                        transactions
+    //////////////////////////////////////////////////////////////*/
     function buy() external payable {
         // convert ETH send into EUR
         // require minimal amount is enought and equal to contribution.
