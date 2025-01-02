@@ -14,7 +14,7 @@ import {PriceConverter} from "../library/PriceConverter.sol";
  *     - The deal is submitted to the owner's approval.
  *     - In case of refusal, the submitters money is sent back
  *     - in case of approval, a new contrat named BulkDeal is deployed (and contains all the commercial data included in the proposal) and the submitter becomes the owner of the contract.
- * @dev uses Chainlink Price feed.
+ * @dev uses Chainlink Price feed ETH/USD.
  */
 contract DealFactory {
     using PriceConverter for uint256;
@@ -22,7 +22,7 @@ contract DealFactory {
     /*//////////////////////////////////////////////////////////////
                         ERRORS
     //////////////////////////////////////////////////////////////*/
-    error DealFactory__InvalidMembershipFeeSent(uint256 required, uint256 passed);
+    error DealFactory__InvalidAmountSent(uint256 required, uint256 passed);
     error DealFactory__CantRemoveOwnerFromMembers();
     error DealFactory__ApplierAlreadyRegistered(address applier);
     error DealFactory__UnsufficientFunds(uint256 contractBalance);
@@ -39,7 +39,7 @@ contract DealFactory {
                         CONSTANTS
     //////////////////////////////////////////////////////////////*/
     uint256 private constant MEMBERSHIP_FEE = 0.05 ether;
-    uint256 private constant PROPOSAL_FEE = 0.01 ether;
+    uint256 private constant DEAL_PROPOSAL_FEE = 0.02 ether;
     uint256 private constant MAX_PENDING_PROPOSALS_PER_MEMBER = 10;
 
     /*//////////////////////////////////////////////////////////////
@@ -83,7 +83,7 @@ contract DealFactory {
 
     function applyForMembership() public payable {
         if (msg.value != MEMBERSHIP_FEE) {
-            revert DealFactory__InvalidMembershipFeeSent({required: MEMBERSHIP_FEE, passed: msg.value});
+            revert DealFactory__InvalidAmountSent({required: MEMBERSHIP_FEE, passed: msg.value});
         }
         if (s_members[msg.sender] == true) {
             revert DealFactory__ApplierAlreadyRegistered({applier: msg.sender});
@@ -108,9 +108,9 @@ contract DealFactory {
             revert DealFactory__UnsufficientFunds(address(this).balance);
         }
         // refund the initial fee to the member to remove
+        s_members[memberToRemove] = false;
         (bool callSuccess,) = payable(memberToRemove).call{value: MEMBERSHIP_FEE}("");
         require(callSuccess, "Call failed");
-        s_members[memberToRemove] = false;
     }
 
     function submitProposal(
@@ -119,21 +119,26 @@ contract DealFactory {
         uint256 _requiredNbOfCustomers,
         string memory _imageUrl,
         string memory _internalId
-    ) public memberOnly {
-        if (s_pendingProposals[msg.sender].length > 0) {
-            // max num of proposal reached
-            if (s_pendingProposals[msg.sender].length == MAX_PENDING_PROPOSALS_PER_MEMBER) {
-                revert DealFactory__MaxNumberOfProposalReached(_internalId, msg.sender);
-            }
-            // check if proposal (by internalId) sent by customer is not already in list
-            for (uint256 i = 0; i < s_pendingProposals[msg.sender].length; i++) {
-                if (
-                    keccak256(abi.encodePacked(s_pendingProposals[msg.sender][i].internalId))
-                        == keccak256(abi.encodePacked(_internalId))
-                ) {
-                    revert DealFactory__ProposalAlreadySubmitted(_internalId);
+    ) public payable memberOnly {
+        // TODO check for msg.value must be == FEES
+        if (msg.value == DEAL_PROPOSAL_FEE) {
+            if (s_pendingProposals[msg.sender].length > 0) {
+                // max num of proposal reached
+                if (s_pendingProposals[msg.sender].length == MAX_PENDING_PROPOSALS_PER_MEMBER) {
+                    revert DealFactory__MaxNumberOfProposalReached(_internalId, msg.sender);
+                }
+                // check if proposal (by internalId) sent by customer is not already in list
+                for (uint256 i = 0; i < s_pendingProposals[msg.sender].length; i++) {
+                    if (
+                        keccak256(abi.encodePacked(s_pendingProposals[msg.sender][i].internalId))
+                            == keccak256(abi.encodePacked(_internalId))
+                    ) {
+                        revert DealFactory__ProposalAlreadySubmitted(_internalId);
+                    }
                 }
             }
+        } else {
+            revert DealFactory__InvalidAmountSent({required: DEAL_PROPOSAL_FEE, passed: msg.value});
         }
 
         DealProposalToValidate memory deal = DealProposalToValidate({
@@ -235,12 +240,12 @@ contract DealFactory {
         return MEMBERSHIP_FEE;
     }
 
-    function getOwner() external view returns (address) {
-        return i_owner;
+    function getDealProposalFee() public pure returns (uint256) {
+        return DEAL_PROPOSAL_FEE;
     }
 
-    function isMember(address member) external view returns (bool) {
-        return s_members[member];
+    function getOwner() external view returns (address) {
+        return i_owner;
     }
 
     function getPriceFeedVersion() public view returns (uint256) {
@@ -266,11 +271,19 @@ contract DealFactory {
         return s_deployedProposals[member][index];
     }
 
+    function getDeployedAddress(address member, uint256 index) public view returns (address) {
+        return s_deployedProposals[member][index].deployed;
+    }
+
+    function getDeployedInternalId(address member, uint256 index) public view returns (string memory) {
+        return s_deployedProposals[member][index].internalId;
+    }
+
     function getNbOfDeployed(address member) public view returns (uint256) {
         return s_deployedProposals[member].length;
     }
 
-    function getMember(address member) public view returns (bool) {
+    function isMember(address member) public view returns (bool) {
         return s_members[member];
     }
 

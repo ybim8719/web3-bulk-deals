@@ -25,7 +25,7 @@ contract BulkDeal {
     }
 
     /*//////////////////////////////////////////////////////////////
-                        transactions
+                        TRANSACTION
     //////////////////////////////////////////////////////////////*/
     function buy() external payable {
         // convert ETH send into EUR
